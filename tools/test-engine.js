@@ -14,7 +14,7 @@ const el=new Proxy(function(){},{
 });
 global.document={querySelector:()=>el,querySelectorAll:()=>[],getElementById:()=>el,addEventListener:noop,
   createElementNS:()=>el,createElement:()=>el,body:el,documentElement:el};
-global.window={matchMedia:()=>({matches:false})}; global.localStorage={getItem:()=>null,setItem:noop};
+global.window={matchMedia:()=>({matches:false}),addEventListener:noop};global.addEventListener=noop; global.localStorage={getItem:()=>null,setItem:noop};
 global.requestAnimationFrame=noop; global.setTimeout=noop; global.clearTimeout=noop;
 global.confirm=()=>true; global.print=noop;
 

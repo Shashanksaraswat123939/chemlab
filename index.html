@@ -138,7 +138,16 @@ button.reveal-inf{padding:3px 10px;font-size:12px;border-radius:8px;border-style
 [data-theme="dark"] .probe svg [fill="#f8fafc"]{fill:var(--glass-fill)}
 
 /* ---------- layout ---------- */
-main{display:grid;grid-template-columns:300px 1fr 390px;height:calc(100vh - 60px);gap:14px;padding:14px}
+main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);height:calc(100vh - 60px);gap:0;padding:14px}
+:root{--colL:300px;--colR:390px}
+/* Drag a splitter to give a panel more room; double-click one to put it back.
+   Arrow keys move it too, so it is not a mouse-only control. */
+.split{position:relative;cursor:col-resize;touch-action:none;display:grid;place-items:center;z-index:6}
+.split:before{content:"";width:4px;height:46px;border-radius:999px;background:var(--line);transition:.15s}
+.split:hover:before,.split.dragging:before{background:var(--accent);height:76px}
+.split:focus-visible{outline:none}
+.split:focus-visible:before{background:var(--accent);height:76px;box-shadow:0 0 0 3px rgba(37,99,235,.3)}
+.split[aria-hidden="true"]{display:none}
 .panel{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;min-height:0}
 .panel-h{padding:12px 14px;border-bottom:1px solid var(--line);font-weight:700;font-size:13px;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
 /* ---------- shelf ---------- */
@@ -160,7 +169,7 @@ main{display:grid;grid-template-columns:300px 1fr 390px;height:calc(100vh - 60px
 .item.hl{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.22);background:var(--accent-bg)}
 .item.hl:after{content:"needed";font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--accent)}
 /* ---------- bench ---------- */
-.bench{position:relative;background:
+.bench{container-type:inline-size;position:relative;background:
   radial-gradient(1200px 400px at 50% 120%,var(--bench-gloss),transparent),
   linear-gradient(180deg,var(--bench-air) 0%,var(--bench-air) 62%,var(--wood1) 62%,var(--wood2) 100%);}
 .bench-top{display:flex;gap:14px;padding:14px 18px 0}
@@ -171,26 +180,34 @@ main{display:grid;grid-template-columns:300px 1fr 390px;height:calc(100vh - 60px
 .bench-card small{color:var(--muted);font-size:11px}
 .bench-card .mini{display:flex;gap:6px;margin-top:6px}
 .bench-card .mini button{padding:4px 8px;font-size:11px;border-radius:8px}
-.bench-main{position:absolute;left:0;right:0;top:120px;bottom:70px;display:flex;align-items:flex-end;justify-content:space-evenly;padding:0 20px 26px}
-.stand{position:relative;width:190px;height:400px;display:flex;justify-content:center}
-.stand:before{content:"";position:absolute;left:50%;bottom:0;width:140px;height:14px;margin-left:-70px;background:var(--metal2);border-radius:6px;box-shadow:0 4px 8px rgba(0,0,0,.25)}
-.stand:after{content:"";position:absolute;left:50%;bottom:0;width:8px;height:340px;margin-left:44px;background:var(--metal);border-radius:4px}
-.clamp{position:absolute;left:50%;top:60px;width:106px;height:16px;margin-left:-54px;border:5px solid var(--metal);border-radius:10px;z-index:3;background:transparent}
-.clamp:after{content:"";position:absolute;right:-56px;top:1px;width:52px;height:5px;background:var(--metal)}
+.bench-main{--ap:1;position:absolute;left:0;right:0;top:120px;bottom:70px;display:flex;align-items:flex-end;justify-content:space-evenly;padding:0 20px 26px}
+/* The bench scales to the width it actually has, not the window's, so narrowing
+   it with the splitter keeps the apparatus in proportion instead of colliding.
+   The four pieces measure 670px side by side, plus 40px of padding, so full size
+   holds down to about 720px and only then starts stepping down. */
+@container (max-width:720px){.bench-main{--ap:.88}}
+@container (max-width:620px){.bench-main{--ap:.76}}
+@container (max-width:520px){.bench-main{--ap:.64}}
+@container (max-width:430px){.bench-main{--ap:.53}}
+.stand{position:relative;width:calc(190px*var(--ap));height:calc(400px*var(--ap));display:flex;justify-content:center}
+.stand:before{content:"";position:absolute;left:50%;bottom:0;width:calc(140px*var(--ap));height:calc(14px*var(--ap));margin-left:calc(-70px*var(--ap));background:var(--metal2);border-radius:6px;box-shadow:0 4px 8px rgba(0,0,0,.25)}
+.stand:after{content:"";position:absolute;left:50%;bottom:0;width:calc(8px*var(--ap));height:calc(340px*var(--ap));margin-left:calc(44px*var(--ap));background:var(--metal);border-radius:4px}
+.clamp{position:absolute;left:50%;top:calc(60px*var(--ap));width:calc(106px*var(--ap));height:calc(16px*var(--ap));margin-left:calc(-54px*var(--ap));border:calc(5px*var(--ap)) solid var(--metal);border-radius:10px;z-index:3;background:transparent}
+.clamp:after{content:"";position:absolute;right:calc(-56px*var(--ap));top:1px;width:calc(52px*var(--ap));height:calc(5px*var(--ap));background:var(--metal)}
 .vessel{cursor:grab;touch-action:none;user-select:none;transition:transform .55s cubic-bezier(.34,1.2,.44,1)}
 .vessel.heating{z-index:5}
 .vessel.overflame{animation:simmer 1.15s ease-in-out infinite}
 @keyframes simmer{0%,100%{filter:none}50%{filter:brightness(1.05) saturate(1.12)}}
-.tube-wrap{position:absolute;left:50%;top:0;width:150px;margin-left:-75px;z-index:2}
-.tube-wrap svg{width:150px;height:420px;display:block;overflow:visible}
-.beaker-wrap{position:relative;width:170px;margin-bottom:0}
-.beaker-wrap svg{width:170px;height:190px;display:block;overflow:visible}
+.tube-wrap{position:absolute;left:50%;top:0;width:calc(150px*var(--ap));margin-left:calc(-75px*var(--ap));z-index:2}
+.tube-wrap svg{width:calc(150px*var(--ap));height:calc(420px*var(--ap));display:block;overflow:visible}
+.beaker-wrap{position:relative;width:calc(170px*var(--ap));margin-bottom:0}
+.beaker-wrap svg{width:calc(170px*var(--ap));height:calc(190px*var(--ap));display:block;overflow:visible}
 .vlabel{position:absolute;left:50%;transform:translateX(-50%);bottom:-26px;text-align:center;font-size:11.5px;font-weight:600;color:var(--ink);white-space:nowrap;background:var(--sign-bg);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
 .dropzone{transition:.15s}
 .dropzone.over{outline:3px dashed var(--accent);outline-offset:8px;border-radius:14px;background:rgba(37,99,235,.09);animation:pulseDrop .9s ease-in-out infinite}
 @keyframes pulseDrop{0%,100%{outline-offset:8px}50%{outline-offset:12px}}
-.burner{position:relative;width:150px;height:250px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:0;--flame:#60a5fa}
-.burner svg{width:150px;height:240px;display:block;overflow:visible}
+.burner{position:relative;width:calc(150px*var(--ap));height:calc(250px*var(--ap));display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:0;--flame:#60a5fa}
+.burner svg{width:calc(150px*var(--ap));height:calc(240px*var(--ap));display:block;overflow:visible}
 .flame{transform-origin:50% 100%;animation:flick 2.3s ease-in-out infinite}
 .flame .inner{transform-origin:50% 100%;animation:flickIn 1.7s ease-in-out infinite}
 .flame .halo{transform-origin:50% 100%;animation:halo 2.9s ease-in-out infinite;mix-blend-mode:screen}
@@ -204,10 +221,10 @@ main{display:grid;grid-template-columns:300px 1fr 390px;height:calc(100vh - 60px
 }
 @keyframes flickIn{0%,100%{transform:scaleY(1);opacity:.85}37%{transform:scaleY(1.09);opacity:.95}71%{transform:scaleY(.94);opacity:.78}}
 @keyframes halo{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:.4;transform:scale(1.09)}}
-.rod-overlay{position:absolute;left:22px;top:-30px;width:120px;height:150px;pointer-events:none;opacity:0;transition:.3s;z-index:4}
+.rod-overlay{position:absolute;left:calc(22px*var(--ap));top:calc(-30px*var(--ap));width:calc(120px*var(--ap));height:calc(150px*var(--ap));pointer-events:none;opacity:0;transition:.3s;z-index:4}
 .rod-overlay.show{opacity:1}
 .rod-overlay svg{width:100%;height:100%}
-.sink{width:160px;height:96px;border-radius:14px;background:linear-gradient(180deg,var(--sink1),var(--sink2));border:2px solid var(--sink-line);display:grid;place-items:center;color:var(--sink-ink);font-size:12px;text-align:center;position:relative;margin-bottom:6px}
+.sink{width:calc(160px*var(--ap));height:calc(96px*var(--ap));border-radius:14px;background:linear-gradient(180deg,var(--sink1),var(--sink2));border:2px solid var(--sink-line);display:grid;place-items:center;color:var(--sink-ink);font-size:12px;text-align:center;position:relative;margin-bottom:6px}
 .sink:before{content:"";position:absolute;top:-26px;right:26px;width:8px;height:34px;background:var(--sink-line);border-radius:4px 4px 0 0}
 .sink:after{content:"";position:absolute;top:-26px;right:8px;width:30px;height:8px;background:var(--sink-line);border-radius:4px}
 .contents-bar{position:absolute;left:14px;right:14px;bottom:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px;display:flex;align-items:center;gap:8px;height:46px}
@@ -227,39 +244,24 @@ main{display:grid;grid-template-columns:300px 1fr 390px;height:calc(100vh - 60px
 .ctag.rodtag:hover{background:var(--warn-soft);border-color:var(--ink)}
 .ctag.rodtag .wipe{border:0;background:rgba(128,128,128,.22);color:var(--warn);border-radius:50%;width:16px;height:16px;line-height:1;padding:0;font-size:10px;box-shadow:none}
 .ctag.rodtag .wipe:hover{background:var(--bad);color:var(--surface);box-shadow:none}
-/* ---------- the mole-of-cars backdrop (easter egg, off by default) ----------
-   Click the ChemLab mark in the header to park a mole of cars outside the lab. */
-.backdrop{position:absolute;left:0;right:0;top:0;height:62%;overflow:hidden;pointer-events:none;z-index:0;
-  opacity:0;visibility:hidden;transition:opacity .45s}
-body.panicherry .backdrop{opacity:1;visibility:visible}
-body.panicherry .bench{background:
-  radial-gradient(1200px 400px at 50% 120%,var(--bench-gloss),transparent),
-  linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 62%,var(--wood1) 62%,var(--wood2) 100%)}
-.backdrop .skyline{position:absolute;left:0;right:0;bottom:34px;height:120px;opacity:.38;
-  background:repeating-linear-gradient(90deg,
-    var(--bldg) 0 26px,transparent 26px 34px,var(--bldg) 34px 48px,transparent 48px 62px,
-    var(--bldg) 62px 96px,transparent 96px 108px,var(--bldg) 108px 130px,transparent 130px 150px);
-  -webkit-mask-image:linear-gradient(180deg,transparent,#000 55%);mask-image:linear-gradient(180deg,transparent,#000 55%)}
-.backdrop .road{position:absolute;left:0;right:0;bottom:0;height:36px;background:var(--road);
-  border-top:2px solid var(--road-line);overflow:hidden}
-.backdrop .road:after{content:"";position:absolute;left:0;right:0;top:17px;height:2px;
-  background:repeating-linear-gradient(90deg,var(--road-line) 0 18px,transparent 18px 40px);opacity:.6}
-.backdrop .lane{position:absolute;inset:0}
-.backdrop .car{position:absolute;bottom:4px;width:44px;height:18px;will-change:transform;
-  animation:drive linear infinite}
-.backdrop .car svg{width:100%;height:100%;display:block}
-@keyframes drive{from{transform:translateX(-70px)}to{transform:translateX(calc(100% + 100vw))}}
-.backdrop .sign{position:absolute;right:18px;bottom:46px;text-align:right;line-height:1.35;
-  background:var(--sign-bg);border:1px solid var(--sign-line);border-radius:12px;padding:8px 13px;box-shadow:var(--shadow)}
-.backdrop .sign b{display:block;font-size:13px;color:var(--accent-ink);letter-spacing:.2px}
-.backdrop .sign span{font-size:11px;color:var(--muted)}
-.backdrop .sign sup{font-size:8px}
-:root{--sky1:#cfe2f8;--sky2:#eaf1fa;--bldg:#9db4d0;--road:#7c8698;--road-line:#e8edf5;--sign-line:var(--accent-line)}
-[data-theme="dark"]{--sky1:#0d1526;--sky2:#16233a;--bldg:#2b3d5c;--road:#1c2432;--road-line:#6b7687;--sign-line:var(--accent-line)}
-.bench-main{z-index:1}
-.bench-top{position:relative;z-index:1}
-.contents-bar{z-index:2}
 
+/* A tool you have used is a real object left on the bench, not a chip in a bar:
+   the rod you dipped stays where you put it, and you pick that same one up to
+   carry it to the flame. */
+.benchtools{position:absolute;inset:0;pointer-events:none;z-index:7}
+.benchtool{position:absolute;pointer-events:auto;display:flex;align-items:center;gap:7px;
+  background:var(--surface);border:1px solid var(--warn);border-left:4px solid var(--warn);
+  border-radius:12px;padding:6px 9px 6px 7px;box-shadow:var(--shadow);cursor:grab;
+  user-select:none;touch-action:none;max-width:230px;transition:box-shadow .15s,border-color .15s}
+.benchtool:hover{box-shadow:0 10px 26px rgba(16,24,40,.28);border-color:var(--accent);border-left-color:var(--accent)}
+.benchtool:focus-visible{box-shadow:var(--focus)}
+.benchtool svg{width:26px;height:34px;flex:0 0 auto}
+.benchtool .bt-lbl{font-size:11.5px;line-height:1.3;font-weight:700;min-width:0}
+.benchtool .bt-lbl i{display:block;font-style:normal;font-weight:400;color:var(--muted);font-size:10.5px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.benchtool .bt-x{flex:0 0 auto;border:0;background:var(--chip);color:var(--muted);border-radius:50%;
+  width:18px;height:18px;padding:0;box-shadow:none}
+.benchtool .bt-x:hover{background:var(--bad);color:#fff;box-shadow:none;border-color:transparent}
 /* ---------- side ---------- */
 .obs{padding:14px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--surface),var(--accent-bg))}
 .obs .head{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
@@ -324,9 +326,9 @@ body.panicherry .bench{background:
 .ghost svg{width:100%;height:auto;display:block}
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#101828;color:var(--surface);padding:11px 18px;border-radius:12px;font-size:13.5px;opacity:0;transition:.25s;z-index:1200;pointer-events:none;max-width:70vw;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.3)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.probe{position:absolute;left:0;top:0;width:130px;pointer-events:none;opacity:0;transition:opacity .3s;z-index:6}
+.probe{--ap:1;position:absolute;left:0;top:0;width:calc(130px*var(--ap));pointer-events:none;opacity:0;transition:opacity .3s;z-index:6}
 .probe.show{opacity:1}
-.probe svg{width:130px;height:110px;overflow:visible}
+.probe svg{width:calc(130px*var(--ap,1));height:calc(110px*var(--ap,1));overflow:visible}
 .modal-bg{position:fixed;inset:0;background:rgba(17,24,39,.5);display:none;place-items:center;z-index:1100;padding:16px}
 .modal-bg.show{display:grid;animation:fadeIn .18s ease-out}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -359,6 +361,18 @@ body.panicherry .bench{background:
 .sa1box b{display:block;font-size:13px}
 .sa1box small{color:var(--muted);font-size:11.5px}
 .sa1box button{flex:0 0 auto}
+/* the start-of-session mode chooser */
+.pickgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pick{display:block;text-align:left;padding:16px;border-radius:14px;border:1px solid var(--line);background:var(--surface);cursor:pointer}
+.pick:hover:not(:disabled){border-color:var(--accent);background:var(--accent-bg);box-shadow:0 6px 20px rgba(37,99,235,.16);transform:translateY(-1px)}
+.pick .pi{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:var(--accent-soft);color:var(--accent-ink);margin-bottom:10px}
+.pick .pi .ic{width:20px;height:20px}
+.pick>b{display:block;font-size:16px;margin-bottom:6px}
+.pick small b{font-weight:700;color:var(--ink2)}
+.pick small{display:block;font-size:12.5px;color:var(--muted);line-height:1.55;font-weight:400}
+.pick .for{display:block;margin-top:9px;padding-top:8px;border-top:1px dashed var(--line);font-size:11.5px;font-weight:600;color:var(--accent)}
+.pick.current{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+@media (max-width:700px){.pickgrid{grid-template-columns:1fr}}
 /* salt picker / random pool */
 .pool-h{display:flex;align-items:center;gap:8px;margin-top:16px;font-size:12px;color:var(--muted)}
 .pool-h b{color:var(--ink);font-size:13px}
@@ -407,12 +421,13 @@ body.panicherry .bench{background:
   @page{margin:14mm}
 }
 @media (max-width:1280px){
-  main{grid-template-columns:264px 1fr 350px}
+  :root{--colL:264px;--colR:350px}
 }
 @media (max-width:1100px){
   header{height:auto;flex-wrap:wrap;gap:10px;padding:10px 14px}
   .salt-tag{margin-left:0}
-  main{grid-template-columns:1fr;height:auto}
+  main{grid-template-columns:1fr;height:auto;gap:14px}
+  .split{display:none}
   .bench{min-height:720px}
   .items{grid-template-columns:repeat(5,1fr)}
   .side-body{max-height:none;overflow:visible}
@@ -456,7 +471,7 @@ body.panicherry .bench{background:
 </defs></svg>
 <header>
   <div class="brand">
-    <button class="logo" id="btnEgg" aria-pressed="false" title="Park a mole of cars outside the lab"><svg class="ic" viewBox="0 0 24 24" style="width:20px;height:20px" aria-hidden="true"><use href="#i-shelf"/></svg><span class="sr">Toggle the Mr. Panicherry backdrop</span></button>
+    <div class="logo" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24" style="width:20px;height:20px"><use href="#i-shelf"/></svg></div>
     <div><h1 style="font:inherit">ChemLab</h1><small>Qualitative analysis of a simple salt · CBSE Class XI · <span class="ver">build 9</span></small></div>
   </div>
   <div class="salt-tag" id="saltTag">Unknown salt</div>
@@ -464,7 +479,6 @@ body.panicherry .bench{background:
     <div class="modesw" id="modeSw" role="group" aria-label="Mode" title="Learning shows the procedure, the inferences and how all three salts behave. Test hides the inferences.">
       <button data-mode="learn" class="on" aria-pressed="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-book"/></svg>Learning</button><button data-mode="test" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-target"/></svg>Test</button>
     </div>
-    <label class="tg" title="Sound effects — pouring, effervescence, the burner"><input type="checkbox" id="tgSfx"><span class="tg-track" aria-hidden="true"></span><span class="tg-lbl">Sound</span></label>
     <button id="btnTheme" class="themebtn" aria-pressed="false" title="Switch between the light and dark bench"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-moon" id="themeIcon"/></svg><span id="themeLbl">Dark</span></button>
     <button id="btnNew"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-refresh"/></svg>New salt</button>
     <button id="btnPrint"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-printer"/></svg>Print record</button>
@@ -485,6 +499,9 @@ body.panicherry .bench{background:
     <div class="items" id="items" role="list"></div>
   </aside>
 
+  <div class="split" id="splitL" role="separator" aria-orientation="vertical" tabindex="0"
+       aria-label="Width of the reagent shelf — drag, or use the arrow keys; double-click to reset"></div>
+
   <!-- ===== BENCH ===== -->
   <section class="panel bench">
     <div class="bench-top">
@@ -503,11 +520,6 @@ body.panicherry .bench{background:
       </div>
     </div>
 
-    <div class="backdrop" id="backdrop" aria-hidden="true">
-      <div class="skyline"></div>
-      <div class="road"><div class="lane" id="carLane"></div></div>
-      <div class="sign"><b>Mr. Panicherry's lab</b><span>6.022 &times; 10<sup>23</sup> cars parked outside &mdash; exactly 1 mol</span></div>
-    </div>
     <div class="bench-main" id="benchMain">
       <div class="stand">
         <div class="clamp"></div>
@@ -587,12 +599,16 @@ body.panicherry .bench{background:
       </div>
 
       <div class="sink dropzone" data-drop="sink"><span><b>Sink</b><br><small>drop a vessel here to wash it</small></span></div>
+      <div class="benchtools" id="benchTools"></div>
       <div class="probe" id="probe" aria-hidden="true"></div>
       <div class="popobs" id="popObs" aria-hidden="true"></div>
     </div>
 
     <div class="contents-bar" id="contentsBar"></div>
   </section>
+
+  <div class="split" id="splitR" role="separator" aria-orientation="vertical" tabindex="0"
+       aria-label="Width of the observations panel — drag, or use the arrow keys; double-click to reset"></div>
 
   <!-- ===== SIDE ===== -->
   <aside class="panel" aria-label="Observations and procedure">
@@ -624,6 +640,25 @@ body.panicherry .bench{background:
 </main>
 
 <div class="toast" id="toast"></div>
+
+<div class="modal-bg" id="modeModal"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modeH">
+  <h2 id="modeH">How do you want to work?</h2><p>Pick one to start. You can swap at any time with the switch in the header.</p>
+  <div class="pickgrid">
+    <button class="pick" data-pick="learn">
+      <span class="pi"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-book"/></svg></span>
+      <b>Learning</b>
+      <small>The inference is shown for every observation, each test carries a <i>why it works</i> note, and a comparison shows what all three SA1 salts give for that test &mdash; with a <b>Compare</b> tab holding every test at once.</small>
+      <span class="for">For working through the procedure the first time.</span>
+    </button>
+    <button class="pick" data-pick="test">
+      <span class="pi"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-target"/></svg></span>
+      <b>Test</b>
+      <small>The procedure stays, the inferences are hidden. Read what you see, write it down, and deduce the ions yourself. A per-observation reveal is there if you get stuck.</small>
+      <span class="for">For checking whether you can actually do it.</span>
+    </button>
+  </div>
+  <div class="hint" id="modeRemembered"></div>
+</div></div>
 
 <div class="modal-bg" id="reportModal"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="repH">
   <h2 id="repH">Report your result</h2><p>Identify the ions from the tests you performed.</p>
@@ -1176,46 +1211,9 @@ const SA1_NAMES=['Ammonium carbonate','Aluminium sulphate','Lead nitrate'];
 const SA1=SA1_NAMES.map(n=>SALTS.find(s=>s.n===n));
 const SA1_IDX=SA1.map(s=>SALTS.indexOf(s));
 let mode='learn';                                   // 'learn' | 'test'
-let showInf=true,sfxOn=false,pool=new Set(SA1_IDX);  // SA1 three by default
+let showInf=true,pool=new Set(SA1_IDX);              // SA1 three by default
 let theme=(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-
-/* =========================================================
-   SFX — synthesised with Web Audio, no files, no libraries
-   ========================================================= */
-let AC=null;
-function actx(){ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==='suspended') AC.resume(); return AC; }
-function noiseSrc(ctx,dur){
-  const n=Math.floor(ctx.sampleRate*dur),b=ctx.createBuffer(1,n,ctx.sampleRate),d=b.getChannelData(0);
-  for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*(1-i/n);
-  const s=ctx.createBufferSource(); s.buffer=b; return s;
-}
-function sfx(kind){
-  if(!sfxOn) return;
-  let ctx; try{ ctx=actx(); }catch(e){ return; }
-  const t=ctx.currentTime,g=ctx.createGain(); g.connect(ctx.destination);
-  if(kind==='fizz'||kind==='flame'||kind==='wash'){
-    const dur=kind==='flame'?1.6:1.1,src=noiseSrc(ctx,dur),f=ctx.createBiquadFilter();
-    f.type=kind==='flame'?'lowpass':'bandpass';
-    f.frequency.value=kind==='flame'?430:(kind==='wash'?1100:2800);
-    f.Q.value=kind==='fizz'?.7:1.1;
-    src.connect(f); f.connect(g);
-    g.gain.setValueAtTime(.0001,t); g.gain.linearRampToValueAtTime(kind==='flame'?.07:.11,t+.12);
-    g.gain.exponentialRampToValueAtTime(.0008,t+dur);
-    src.start(t); src.stop(t+dur+.05); return;
-  }
-  const o=ctx.createOscillator(); o.connect(g);
-  if(kind==='drop'){ o.type='sine'; o.frequency.setValueAtTime(720,t); o.frequency.exponentialRampToValueAtTime(170,t+.16);
-    g.gain.setValueAtTime(.1,t); g.gain.exponentialRampToValueAtTime(.001,t+.2); o.start(t); o.stop(t+.22); }
-  else if(kind==='ppt'){ o.type='triangle'; o.frequency.setValueAtTime(210,t); o.frequency.exponentialRampToValueAtTime(85,t+.3);
-    g.gain.setValueAtTime(.09,t); g.gain.exponentialRampToValueAtTime(.001,t+.34); o.start(t); o.stop(t+.36); }
-  else{ o.type='sine'; o.frequency.setValueAtTime(880,t);                                  // ding
-    g.gain.setValueAtTime(.001,t); g.gain.linearRampToValueAtTime(.11,t+.02); g.gain.exponentialRampToValueAtTime(.001,t+.6);
-    o.start(t); o.stop(t+.62);
-    const o2=ctx.createOscillator(),g2=ctx.createGain(); o2.type='sine'; o2.frequency.setValueAtTime(1318,t+.09);
-    g2.gain.setValueAtTime(.001,t+.09); g2.gain.linearRampToValueAtTime(.07,t+.11); g2.gain.exponentialRampToValueAtTime(.001,t+.7);
-    o2.connect(g2); g2.connect(ctx.destination); o2.start(t+.09); o2.stop(t+.72); }
-}
 
 function evaluate(v){
   const st=v.st,items=st.items,C=salt.c,A=salt.a;
@@ -1307,9 +1305,6 @@ function renderVessel(v,vis){
   const bub=q('.bubbles'); bub.innerHTML='';
   if(vis.bubbles&&lvl){ for(let i=0;i<14;i++) bub.innerHTML+=`<circle cx="${x+6+R()*(w-12)}" cy="${B-4}" r="${1.4+R()*2.6}" fill="#fff" opacity=".85" style="animation:${g.rise} ${1.1+R()*1.3}s linear ${R()*1.6}s infinite"/>`; }
   renderGas(v,gasKind(v.st.gas));
-  const gk=(vis.bubbles?'b':'')+(v.st.gas||'');                   // sound only when the reaction changes
-  if(v.sfxKey!==undefined){ if(gk&&gk!==v.gasKey) sfx('fizz'); else if(key&&key!==v.sfxKey) sfx('ppt'); }
-  v.gasKey=gk; v.sfxKey=key;
 }
 function gasKind(g){ return {NO2:'brown',CrO2Cl2:'red',HCl:'clear',CO2:'clear',Ac:'clear',NH3:'clear'}[g]||null; }
 function renderGas(v,kind){
@@ -1320,7 +1315,6 @@ function renderGas(v,kind){
 }
 // Drops fall in, then a ripple spreads across the surface where they land.
 function pourAnim(v,col){
-  sfx('drop');
   const geo=v.geo,g=$(v.svg).querySelector('.pour'),cx=geo.x+geo.w/2;
   const lvl=+($(v.svg).querySelector('.liq').getAttribute('height')||0);
   const surf=lvl?geo.bottom-lvl:geo.bottom-6;
@@ -1391,14 +1385,7 @@ function renderContents(){
   let h=`<span class="lbl active">${v.Name}:</span>`;
   h+=st.items.length?seen.map(x=>`<span class="ctag">${esc(label(x))}${cnt[x]>1?' ×'+cnt[x]:''}</span>`).join(''):'<span class="ctag dim">empty</span>';
   if(st.heated) h+='<span class="ctag hot">heated</span>'; if(st.scratched) h+='<span class="ctag">scratched</span>'; if(st.soaked) h+='<span class="ctag hot">paper soaked</span>';
-  // every tool that is carrying something, click to get a fresh clean one
-  // the tool you actually used — drag this same one on to the burner or another vessel
-  for(const [tid,t] of Object.entries(tools)){
-    if(!t.items.length&&!t.colour) continue;
-    h+=`<span class="ctag rodtag" data-item="${tid}" data-tool="${tid}" tabindex="0" role="button" title="Drag this same one where you need it, or take a fresh clean one">`
-      +`${esc(label(tid))}${t.items.length?': '+esc(describeLoad(t)):' (used)'}`
-      +`<button class="wipe" data-wipe="${tid}" title="Take a fresh clean one" aria-label="Take a fresh ${esc(label(tid))}"><svg class="ic" viewBox="0 0 24 24" style="width:10px;height:10px" aria-hidden="true"><use href="#i-x"/></svg></button></span>`;
-  }
+  // tools you have used are objects on the bench now, not chips in this bar
   const [oid,ov]=other,n=ov.st.items.length;
   const bar=$('#contentsBar');
   bar.innerHTML=`<div class="chips">${h}</div><div class="tools">`
@@ -1407,12 +1394,48 @@ function renderContents(){
     +`<button id="btnWash"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-drop"/></svg>Wash</button></div>`;
   $('#btnHeat').onclick=()=>heat(active); $('#btnWash').onclick=()=>wash(active);
   bar.querySelector('.switch').onclick=()=>refresh(oid);
-  bar.querySelectorAll('.wipe').forEach(b=>b.onclick=e=>{
-    e.stopPropagation(); const id=b.dataset.wipe;
-    delete tools[id]; renderShelf(currentCat); renderContents(); toast('A fresh '+label(id)+'.');
-  });
 }
 
+/* ---- tools left standing on the bench ---- */
+const SHORT={rodDry:'Glass rod',rodHCl:'Rod · conc. HCl',rodNH4OH:'Rod · NH₄OH',filterPaper:'Filter paper',
+             redLitmus:'Red litmus',blueLitmus:'Blue litmus',limeWater:'Lime water'};
+const onBench=id=>{ const t=tools[id]; return !!t&&(t.items.length>0||!!t.colour); };
+// dropped on a vessel, it comes to rest just beside that vessel
+function restingPlace(vid){
+  const bm=$('#benchMain').getBoundingClientRect(),w=VESSELS[vid]?$(VESSELS[vid].wrap).getBoundingClientRect():null;
+  if(!w) return {x:bm.width*.5,y:bm.height*.45};
+  return {x:w.left-bm.left+w.width*.72,y:w.top-bm.top+w.height*.55};
+}
+function clampToBench(p,el){
+  const bm=$('#benchMain').getBoundingClientRect();
+  const w=el?el.offsetWidth:170,h=el?el.offsetHeight:46;
+  return {x:Math.max(4,Math.min(p.x,bm.width-w-4)),y:Math.max(4,Math.min(p.y,bm.height-h-4))};
+}
+function renderBenchTools(){
+  const host=$('#benchTools'); if(!host) return;
+  let h='';
+  for(const [id,t] of Object.entries(tools)){
+    if(!onBench(id)) continue;
+    if(!t.pos) t.pos=restingPlace(active);
+    const it=ITEM[id]; if(!it) continue;
+    h+=`<div class="benchtool" data-item="${id}" tabindex="0" role="button" style="left:${Math.round(t.pos.x)}px;top:${Math.round(t.pos.y)}px"`
+      +` aria-label="${esc(it.label)}${t.items.length?', carrying '+esc(describeLoad(t)):''}. Drag it to the flame, to a vessel, or anywhere on the bench."`
+      +` title="Drag it to the flame, to a vessel, or anywhere on the bench">${icon(it)}`
+      +`<span class="bt-lbl">${esc(SHORT[id]||it.label)}${t.items.length?`<i>${esc(describeLoad(t))}</i>`:''}</span>`
+      +`<button class="bt-x" data-wipe="${id}" title="Take a fresh clean one" aria-label="Take a fresh ${esc(it.label)}">`
+      +`<svg class="ic" viewBox="0 0 24 24" style="width:10px;height:10px" aria-hidden="true"><use href="#i-x"/></svg></button></div>`;
+  }
+  host.innerHTML=h;
+  host.querySelectorAll('.bt-x').forEach(b=>b.onclick=e=>{
+    e.stopPropagation(); const id=b.dataset.wipe;
+    delete tools[id]; renderShelf(currentCat); renderBenchTools(); toast('A fresh '+label(id)+'.');
+  });
+  // keep every object inside the bench after a resize or a splitter drag
+  host.querySelectorAll('.benchtool').forEach(el=>{
+    const t=tools[el.dataset.item]; if(!t) return;
+    t.pos=clampToBench(t.pos,el); el.style.left=Math.round(t.pos.x)+'px'; el.style.top=Math.round(t.pos.y)+'px';
+  });
+}
 /* ---- icons ---- */
 function icon(it){
   const col=it.col||'#e6eef8', id='c'+it.id+Math.random().toString(36).slice(2,6);
@@ -1577,11 +1600,11 @@ function drawSalt(avoid){
 // Only the settings persist. The salt is never restored — reloading gives a fresh
 // unknown, and a notebook from the previous salt would not belong to it.
 function save(){ try{ const r=document.getElementById('roughText');
-  localStorage.setItem('chemlab',JSON.stringify({mode,theme,egg,sfx:sfxOn,pool:[...pool],last:SALTS.indexOf(salt),rough:r?r.value:''})); }catch(e){} }
+  localStorage.setItem('chemlab',JSON.stringify({mode,theme,cols,pool:[...pool],last:SALTS.indexOf(salt),rough:r?r.value:''})); }catch(e){} }
 function load(){ try{ const d=JSON.parse(localStorage.getItem('chemlab')); if(d){
   if(d.mode==='learn'||d.mode==='test') mode=d.mode;
   if(d.theme==='light'||d.theme==='dark') theme=d.theme;
-  egg=!!d.egg; sfxOn=!!d.sfx;
+  if(d.cols&&typeof d.cols.L==='number'&&typeof d.cols.R==='number') cols={L:d.cols.L,R:d.cols.R};
   if(typeof d.rough==='string'){ const r=document.getElementById('roughText'); if(r) r.value=d.rough; }
   if(Array.isArray(d.pool)&&d.pool.length) pool=new Set(d.pool.filter(i=>SALTS[i]));
   return SALTS[d.last]||null; } }catch(e){} return null; }
@@ -1601,7 +1624,7 @@ function pour(from,to){
   if(!a.st.items.length){ toast('The '+a.name+' is empty — nothing to pour.'); return; }
   pourAnim(b,$(a.svg).querySelector('.liq').getAttribute('fill')||'#dbeafe');
   b.st.items.push(...a.st.items); b.st.heated=b.st.heated||a.st.heated; b.st.scratched=b.st.scratched||a.st.scratched;
-  a.st=freshState(); a.pptKey=''; a.gasKey=''; a.sfxKey=undefined;
+  a.st=freshState(); a.pptKey='';
   setTimeout(()=>{ refresh(from,true); refresh(to); toast('Contents of the '+a.name+' poured into the '+b.name+'.'); },350);
 }
 function heat(vid){
@@ -1610,8 +1633,7 @@ function heat(vid){
   // a second Heat while the vessel is still over the flame would measure the
   // already-moved position and fling it off the bench
   if(v.busy){ toast('The '+v.name+' is already over the flame.'); return; }
-  v.busy=true; sfx('flame');
-  const w=$(v.wrap),b=$('#burner'),r1=w.getBoundingClientRect(),r2=b.getBoundingClientRect();
+  v.busy=true; const w=$(v.wrap),b=$('#burner'),r1=w.getBoundingClientRect(),r2=b.getBoundingClientRect();
   const dx=(r2.left+r2.width/2)-(r1.left+r1.width/2), dy=(r2.top+(vid==='tube'?30:-100))-(r1.top+r1.height-60);
   w.classList.add('heating'); w.style.transform=`translate(${dx}px,${dy}px)${vid==='tube'?' rotate(12deg)':''}`;
   setTimeout(()=>w.classList.add('overflame'),560);
@@ -1621,12 +1643,13 @@ function heat(vid){
   setTimeout(()=>{ w.classList.remove('overflame'); w.style.transform=''; setTimeout(()=>{ w.classList.remove('heating'); v.busy=false; },600); },2400);
 }
 function wash(vid){
-  const v=VESSELS[vid]; sfx('wash'); v.st=freshState(); v.pptKey=''; v.gasKey=''; v.sfxKey=undefined; refresh(vid);
+  const v=VESSELS[vid]; v.st=freshState(); v.pptKey=''; refresh(vid);
   showObs({test:v.Name,sec:'',exp:'Empty '+v.name,obs:'The '+v.name+' is washed and ready.',inf:'—'});
 }
 // Dip any tool into a vessel: it keeps what it picked up, and litmus keeps its new colour.
 function dipTool(vid,id){
   const v=VESSELS[vid],t=T(id),it=ITEM[id];
+  if(!t.pos) t.pos=restingPlace(vid);      // it stays on the bench where you used it
   if(!v.st.items.length){ toast('The '+v.name+' is empty — there is nothing to pick up.'); return; }
   t.items=[...v.st.items];
   if(id==='rodDry') v.st.scratched=true;          // the Mg²⁺ test needs the sides scratched
@@ -1639,7 +1662,7 @@ function dipTool(vid,id){
     obs=next!==cur?`The ${nm(cur)} litmus paper turns ${nm(next)}.`:'No change in the litmus paper.';
     inf=a==='acid'?'The solution is acidic':a==='base'?'The solution is alkaline':'The solution is neutral to litmus';
   } else if(id==='filterPaper') t.colour='#e9d5a1';
-  active=vid; refresh(vid); renderShelf(currentCat); renderContents();
+  active=vid; refresh(vid); renderShelf(currentCat); renderBenchTools(); renderContents();
   if(obs){ const e={sec:AP,test:it.label,exp:describeContents(v)+' — '+it.label+' dipped in the solution',obs,inf,b:[obs.replace(/\.$/,'')],recordable:true};
            showObs(e); popObs(vid,e); }
   else toast(it.label+' now carries '+describeLoad(t)+'.');
@@ -1677,14 +1700,13 @@ function probe(vid,id){
   if(pos&&id==='redLitmus') t.colour='#3b82f6';
   if(pos&&id==='blueLitmus') t.colour='#ef4444';
   if(pos&&id==='limeWater') t.colour='#f1f5f9';
-  active=vid; renderShelf(currentCat); renderContents();
+  active=vid; renderShelf(currentCat); renderBenchTools(); renderContents();
   const e={sec:PROBE_SEC[id]||AP,test:it.label,exp,obs:r.obs,inf:r.inf,b:r.b,doneId:testsMatching(v,id).concat(testsMatching(v)),recordable:true};
   showObs(e); popObs(vid,e);
 }
 // Burn whatever is on the rod. A colour needs the salt AND an acid to make the
 // volatile chloride — salt alone only flickers, which is what happens at the bench.
 function flameTest(rid){
-  sfx('flame');
   const t=T(rid||'rodDry'),has=id=>t.items.includes(id);
   const hasSalt=has('salt')||has('saltSoln'),conc=has('concHCl'),dil=has('dilHCl')||has('concHNO3');
   const f=FLAME[salt.c]||FLAME.none;
@@ -1710,8 +1732,8 @@ function flameTest(rid){
   $('#rodOverlay').innerHTML=`<svg viewBox="0 0 120 150"><line x1="112" y1="8" x2="60" y2="88" stroke="#cbd5e1" stroke-width="6" stroke-linecap="round"/>${t.items.length?`<circle cx="60" cy="88" r="6" fill="${hex||salt.hex||'#f1f5f9'}" stroke="#94a3b8"/>`:''}</svg>`;
   $('#rodOverlay').classList.add('show');
   setTimeout(()=>{ $('#rodOverlay').classList.remove('show'); b.style.setProperty('--flame','#60a5fa'); },4500);
-  t.items=[]; t.colour=null;                // the coating burns off
-  renderShelf(currentCat); renderContents();
+  delete tools[rid||'rodDry'];              // the coating burns off, so the rod is clean again
+  renderShelf(currentCat); renderBenchTools(); renderContents();
   const e={sec:PH,test:'Flame test',exp,obs,inf,b:bul,doneId:(hasSalt&&(conc||dil))?'flame':null,swatch:hex,recordable:true};
   showObs(e); popObs('#burner',e);
 }
@@ -1722,12 +1744,12 @@ function ashTest(){
     const e={sec:PH,test:'Ash test',exp:(t.items.length?'Filter paper carrying '+describeLoad(t):'A dry filter paper')+' burnt in the flame',
       obs:o,inf:'—',b:[o.replace(/\.$/,'')],recordable:t.items.length>0};
     showObs(e); popObs('#burner',e);
-    t.items=[]; t.colour=null; renderShelf(currentCat); renderContents(); return;
+    delete tools.filterPaper; renderShelf(currentCat); renderBenchTools(); renderContents(); return;
   }
   const a=ASH[salt.c]||ASH.none;
   $('#rodOverlay').innerHTML=`<svg viewBox="0 0 120 150"><circle cx="60" cy="70" r="26" fill="#fff" stroke="#cbd5e1" stroke-width="2"><animate attributeName="fill" to="${a.hex}" dur="2s" begin="0.8s" fill="freeze"/><animate attributeName="r" to="18" dur="2s" begin="0.8s" fill="freeze"/></circle><path d="M40 60q10-18 22-6q6-14 20 4" fill="none" stroke="#f97316" stroke-width="3" opacity=".9"><animate attributeName="opacity" to="0" dur="2s" begin="1s" fill="freeze"/></path></svg>`;
   $('#rodOverlay').classList.add('show'); setTimeout(()=>$('#rodOverlay').classList.remove('show'),4500);
-  t.items=[]; t.colour=null; renderShelf(currentCat); renderContents();
+  delete tools.filterPaper; renderShelf(currentCat); renderBenchTools(); renderContents();
   const e={sec:PH,test:'Ash test',exp:'Filter paper carrying salt + conc. HNO₃ + Co(NO₃)₂, burnt in the flame',obs:a.obs,inf:a.inf,b:[a.obs.replace(/\.$/,'')],doneId:['ash','alb'],swatch:a.hex,recordable:true};
   showObs(e); popObs('#burner',e);
 }
@@ -1763,7 +1785,7 @@ function handleDrop(id,zone){
       if(!t.items.length&&id!=='rodDry') t.items=[id==='rodHCl'?'concHCl':'NH4OH'];
       return flameTest(id);
     }
-    if(id==='redLitmus'||id==='blueLitmus'){ const t=T(id); t.items=[]; t.colour=null; renderShelf(currentCat); renderContents(); return toast('The paper chars in the flame. Take a fresh one.'); }
+    if(id==='redLitmus'||id==='blueLitmus'){ delete tools[id]; renderShelf(currentCat); renderBenchTools(); renderContents(); return toast('The paper chars in the flame. Take a fresh one.'); }
     return toast('Only a vessel, the glass rod or the filter paper go to the flame.');
   }
   if(zone==='sink'){
@@ -1773,12 +1795,12 @@ function handleDrop(id,zone){
 }
 function setSalt(s,clearNb){
   salt=s;
-  for(const v of Object.values(VESSELS)){ v.st=freshState(); v.pptKey=''; v.gasKey=''; v.sfxKey=undefined; }
+  for(const v of Object.values(VESSELS)){ v.st=freshState(); v.pptKey=''; }
   // a rod or a filter paper still carrying the previous salt would quietly give
   // that salt's result for the new one, so every tool goes back clean too
   tools={}; done=new Set(); reported='';
   if(clearNb) notebook=[];
-  renderDish(); refresh('beaker',true); refresh('tube'); renderNotebook(); renderShelf(currentCat); renderGuide(); renderCompareSheet(); renderProgress(); save();
+  renderDish(); refresh('beaker',true); refresh('tube'); renderNotebook(); renderShelf(currentCat); renderBenchTools(); renderGuide(); renderCompareSheet(); renderProgress(); save();
   showObs({test:'New salt',sec:'',exp:'An unknown simple salt is given.',obs:'Perform the physical, anion and cation tests, then report the result.',inf:'—'});
   $('#verdict').className='verdict'; $('#evidBox').innerHTML='';
 }
@@ -1816,8 +1838,19 @@ function endDrag(cancel){
   const t=document.elementFromPoint(drag.x,drag.y)?.closest('[data-drop]');
   const target=(t&&t.dataset.drop!==id)?t:null;
   ghost.style.transition='opacity .15s'; ghost.style.opacity='0'; setTimeout(()=>ghost.remove(),160);
+  const dropX=drag.x,dropY=drag.y,ox=drag.ox,oy=drag.oy;
   drag=null;
-  if(target&&!cancel) handleDrop(id,target.dataset.drop);
+  if(cancel) return;
+  if(target) return handleDrop(id,target.dataset.drop);
+  // no drop zone under the pointer: a tool already on the bench is simply put
+  // down there, so it stays where you left it instead of snapping back
+  if(onBench(id)) placeToolAt(id,dropX-ox,dropY-oy);
+}
+function placeToolAt(id,clientX,clientY){
+  const bm=$('#benchMain').getBoundingClientRect();
+  if(clientX<bm.left-40||clientX>bm.right+40||clientY<bm.top-40||clientY>bm.bottom+40) return;
+  tools[id].pos={x:clientX-bm.left,y:clientY-bm.top};
+  renderBenchTools();
 }
 document.addEventListener('pointerup',()=>endDrag(false));
 document.addEventListener('pointercancel',()=>endDrag(true));
@@ -1831,6 +1864,7 @@ function startGhost(){
 }
 function clickItem(id){
   if(VESSELS[id]) return toast('Drag the '+VESSELS[id].name+' on to the burner to heat it, on to the other vessel to pour, or to the sink to wash it.');
+  if(onBench(id)) return toast(label(id)+' is on the bench — drag it to the flame, or on to a vessel.');
   if(id==='rodHCl') return toast('Drag this rod to the mouth of a vessel to test the gas evolved.');
   if(id==='rodDry') return toast('Drag the rod on to a vessel to coat it, then into the flame for the flame test.');
   handleDrop(id,active);
@@ -1911,12 +1945,25 @@ function evidence(){
   const n=tests.filter(t=>done.has(t.id)).length;
   return `<div class="evid"><h4>The evidence for this salt — you did ${n} of these ${tests.length} deciding tests</h4><table><tbody>${rows}</tbody></table></div>`;
 }
+// The session opens on the choice between the two ways of working, so nobody
+// lands in the wrong one by accident. The header switch swaps at any time.
+function askMode(){
+  $$('#modeModal .pick').forEach(b=>b.classList.toggle('current',b.dataset.pick===mode));
+  $('#modeRemembered').textContent='Last time you used '+(mode==='learn'?'Learning':'Test')+' mode.';
+  openModal('#modeModal');
+}
+$('#modeModal').addEventListener('click',e=>{
+  const b=e.target.closest('.pick'); if(!b) return;
+  setMode(b.dataset.pick);
+  closeModal('#modeModal');
+  toast(mode==='learn'?'Learning mode — inferences and the three-salt comparison are shown.':'Test mode — the procedure stays, the inferences are hidden.');
+});
 $('#btnReport').onclick=()=>openModal('#reportModal');
 $('#btnCloseReport').onclick=()=>closeModal('#reportModal');
 $('#btnCheck').onclick=()=>{
   const a=$('#selAnion').value,c=$('#selCation').value,v=$('#verdict');
   const okA=a===salt.a,okC=c===salt.c;
-  if(okA&&okC){ sfx('ding'); v.className='verdict ok';
+  if(okA&&okC){ v.className='verdict ok';
     v.innerHTML=`<span class="vh">${ICON('check')}<b>Correct — the salt is ${esc(salt.n)} (${esc(salt.f)}).</b></span>`
       +`<ul><li>Anion: ${ANIONS[a].name} (${ANIONS[a].sym})</li><li>Cation: ${CATIONS[c].name} (${CATIONS[c].sym})</li></ul>`;
     reported=`Anion ${ANIONS[a].sym}, cation ${CATIONS[c].sym}; the given salt is ${salt.n} (${salt.f}).`;
@@ -1969,7 +2016,63 @@ $('#poolAll').onclick=()=>{ matchIdx().forEach(i=>pool.add(i)); renderSaltList()
 $('#poolNone').onclick=()=>{ matchIdx().forEach(i=>pool.delete(i)); renderSaltList(); save(); };
 $('#saltSearch').oninput=e=>{ saltQuery=e.target.value; renderSaltList(); };
 $('#saltSearch').onkeydown=e=>{ if(e.key==='Escape'&&e.target.value){ e.stopPropagation(); e.target.value=''; saltQuery=''; renderSaltList(); } };
-$('#tgSfx').onchange=e=>{ sfxOn=e.target.checked; applySettings(); save(); if(sfxOn) sfx('ding'); };
+/* ---------------------------------------------------------
+   Panel widths. The two splitters set the side columns; the bench takes what is
+   left. Widths are clamped so the bench always keeps enough room for the
+   apparatus, and re-clamped whenever the window changes shape, so a width saved
+   on a wide screen cannot squash a narrow one.
+   --------------------------------------------------------- */
+const COL_DEF={L:300,R:390},COL_MIN={L:210,R:300},COL_MAX={L:460,R:620},BENCH_MIN=430;
+let cols={L:COL_DEF.L,R:COL_DEF.R};
+function clampCols(){
+  const avail=Math.max(320,window.innerWidth-28-28);           // page padding + both splitters
+  for(const k of ['L','R']) cols[k]=Math.min(COL_MAX[k],Math.max(COL_MIN[k],Math.round(cols[k])));
+  let over=(cols.L+cols.R+BENCH_MIN)-avail;
+  // take the overflow off the wider panel first, never below its minimum
+  while(over>0){
+    const k=(cols.L-COL_MIN.L)>=(cols.R-COL_MIN.R)?'L':'R';
+    const room=cols[k]-COL_MIN[k];
+    if(room<=0) break;
+    const cut=Math.min(room,over); cols[k]-=cut; over-=cut;
+  }
+}
+function applyCols(){
+  clampCols();
+  document.documentElement.style.setProperty('--colL',cols.L+'px');
+  document.documentElement.style.setProperty('--colR',cols.R+'px');
+  if(typeof renderBenchTools==='function') renderBenchTools();
+  for(const [id,k] of [['#splitL','L'],['#splitR','R']]){
+    const el=$(id); if(!el) continue;
+    el.setAttribute('aria-valuenow',cols[k]);
+    el.setAttribute('aria-valuemin',COL_MIN[k]); el.setAttribute('aria-valuemax',COL_MAX[k]);
+  }
+}
+function dragSplit(id,k,dir){
+  const el=$(id);
+  el.addEventListener('pointerdown',e=>{
+    if(e.button!==0) return;
+    e.preventDefault(); el.setPointerCapture(e.pointerId); el.classList.add('dragging');
+    const x0=e.clientX,w0=cols[k];
+    const move=ev=>{ cols[k]=w0+(ev.clientX-x0)*dir; applyCols(); };
+    const up=()=>{ el.classList.remove('dragging'); el.removeEventListener('pointermove',move);
+                   el.removeEventListener('pointerup',up); el.removeEventListener('pointercancel',up); save(); };
+    el.addEventListener('pointermove',move);
+    el.addEventListener('pointerup',up); el.addEventListener('pointercancel',up);
+  });
+  el.addEventListener('keydown',e=>{
+    const step=e.shiftKey?48:12;
+    if(e.key==='ArrowLeft') cols[k]-=step*dir;
+    else if(e.key==='ArrowRight') cols[k]+=step*dir;
+    else if(e.key==='Home'||e.key==='End') cols[k]=e.key==='Home'?COL_MIN[k]:COL_MAX[k];
+    else return;
+    e.preventDefault(); applyCols(); save();
+  });
+  el.addEventListener('dblclick',()=>{ cols[k]=COL_DEF[k]; applyCols(); save(); toast('Panel width reset.'); });
+}
+dragSplit('#splitL','L',1);
+dragSplit('#splitR','R',-1);
+window.addEventListener('resize',()=>{ applyCols(); renderBenchTools(); });
+
 // Theme: follows the system until you choose, then stays chosen.
 function applyTheme(){
   document.documentElement.setAttribute('data-theme',theme);
@@ -1980,34 +2083,11 @@ function applyTheme(){
   $('#btnTheme').setAttribute('aria-label',dark?'Switch to the light bench':'Switch to the dark bench');
 }
 $('#btnTheme').onclick=()=>{ theme=theme==='dark'?'light':'dark'; applyTheme(); save(); };
-// A mole of cars is 6.022 x 10^23 of them, which does not fit on the bench, so the
-// lane carries a representative sample and the sign carries the actual number.
-let egg=false;
-function applyEgg(){
-  document.body.classList.toggle('panicherry',egg);
-  $('#btnEgg').setAttribute('aria-pressed',egg);
-  const lane=$('#carLane');
-  if(!egg){ lane.innerHTML=''; return; }
-  if(lane.children.length) return;
-  const body=['#ef4444','#f59e0b','#22c55e','#3b82f6','#a855f7','#e2e8f0','#14b8a6','#f472b6'];
-  const R=mulberry(602214076);
-  lane.innerHTML=Array.from({length:16},(_, i)=>{
-    const c=body[Math.floor(R()*body.length)],dur=(9+R()*11).toFixed(1),delay=(-R()*20).toFixed(1),w=Math.round(32+R()*22);
-    return `<span class="car" style="animation-duration:${dur}s;animation-delay:${delay}s;width:${w}px;height:${Math.round(w*18/44)}px">`
-      +`<svg viewBox="0 0 44 18"><path d="M3 14h38a2 2 0 0 0 2-2v-3a3 3 0 0 0-2.4-2.9L33 5.6 28.4 2.4A4 4 0 0 0 26.1 1.7H16a4 4 0 0 0-2.8 1.2L9.6 6.6 4 7.8A3 3 0 0 0 1.6 10.7V12a2 2 0 0 0 2 2z" fill="${c}"/>`
-      +`<path d="M16.4 3.6h8.9a2 2 0 0 1 1.2.4l2.6 2H15.4z" fill="#0f172a" opacity=".45"/>`
-      +`<circle cx="12" cy="14.4" r="3.2" fill="#111827"/><circle cx="12" cy="14.4" r="1.3" fill="#94a3b8"/>`
-      +`<circle cx="32" cy="14.4" r="3.2" fill="#111827"/><circle cx="32" cy="14.4" r="1.3" fill="#94a3b8"/></svg></span>`;
-  }).join('');
-}
-$('#btnEgg').onclick=()=>{ egg=!egg; applyEgg(); save();
-  toast(egg?'6.022 x 10²³ cars parked outside Mr. Panicherry’s lab.':'The cars have gone home.'); };
 function applySettings(){
   showInf=(mode==='learn');
   document.body.classList.toggle('hide-inf',!showInf);
   document.body.classList.toggle('test-mode',mode==='test');
   $$('#modeSw button').forEach(b=>{ const on=b.dataset.mode===mode; b.classList.toggle('on',on); b.setAttribute('aria-pressed',on); });
-  $('#tgSfx').checked=sfxOn;
   // The procedure stays in both modes — the steps are the method, and an exam gives
   // you those. What test mode withholds is the inference and the comparison table.
   const ct=$('.side-tabs button[data-side="cmp"]');
@@ -2016,10 +2096,13 @@ function applySettings(){
   if(mode!=='learn'&&ct.classList.contains('active')) $('.side-tabs button[data-side="guide"]').click();
   renderProgress();
 }
+function setMode(m){
+  mode=m;
+  applySettings(); renderGuide(); renderCompareSheet(); renderNotebook(); refresh(active); save();
+}
 $('#modeSw').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b||b.dataset.mode===mode) return;
-  mode=b.dataset.mode;
-  applySettings(); renderGuide(); renderCompareSheet(); renderNotebook(); refresh(active); save();
+  setMode(b.dataset.mode);
   toast(mode==='learn'?'Learning mode — inferences and the three-salt comparison are shown.':'Test mode — the procedure stays, the inferences are hidden.');
 });
 $$('.modal-bg').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m) closeModal('#'+m.id); }));
@@ -2033,11 +2116,10 @@ $('#selCation').innerHTML=Object.entries(CATIONS).map(([k,v])=>`<option value="$
 const prevSalt=load();          // settings only; the unknown is drawn fresh every load
 salt=drawSalt(prevSalt);
 save();                         // record it now, so the next load avoids repeating it
-applyTheme(); applyEgg(); applySettings(); renderSaltList(); roughCount();
-renderShelf('acid'); renderGuide(); renderCompareSheet(); renderDish(); renderNotebook(); renderProgress(); refresh('beaker',true); refresh('tube');
+applyTheme(); applyCols(); applySettings(); renderSaltList(); roughCount();
+renderShelf('acid'); renderGuide(); renderCompareSheet(); renderDish(); renderNotebook(); renderBenchTools(); renderProgress(); refresh('beaker',true); refresh('tube');
 showObs({test:'Welcome',sec:'',exp:'An unknown simple salt is given. Identify its anion and cation.',obs:'Choose a test in the procedure guide, drag the reagents it needs on to the test tube or beaker, read the result here, then record it.',inf:'—'});
-// make the fresh draw visible, so a chance repeat is not mistaken for a stuck salt
-toast('A new unknown salt has been drawn from '+pool.size+(pool.size>1?' salts.':' salt.'));
+askMode();
 </script>
 </body>
 </html>
