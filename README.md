@@ -1,5 +1,7 @@
 # ChemLab — Qualitative Salt Analysis
 
+**Live:** https://chemlab-teamblackwings-projects-cb032a19.vercel.app
+
 A drag-and-drop chemistry lab for the qualitative analysis of a simple salt,
 following the CBSE Class XI practical scheme. Identify the anion and the cation
 of an unknown salt by doing the tests, not by reading the answer.
@@ -54,3 +56,15 @@ DOM and evaluates every salt against every test, hot and cold:
 
 `tools/dump.js` prints the full three-salt comparison for eyeballing against the
 practical records.
+
+## How it is deployed
+
+The Vercel token available here could deploy files but not link a git repo, so
+the Vercel project builds by fetching `index.html` from this repository:
+
+    curl -sfL https://raw.githubusercontent.com/Shashanksaraswat123939/chemlab/main/index.html -o public/index.html
+
+The deployed artefact is therefore byte-identical to `index.html` on `main`, and a
+redeploy picks up whatever is on `main`. To replace this with a normal git
+integration — a deploy on every push — connect this repository to the project in
+the Vercel dashboard (Project → Settings → Git).
