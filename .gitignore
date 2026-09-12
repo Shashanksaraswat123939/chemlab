@@ -5,3 +5,4 @@ node_modules/
 # and are not published with the site
 Chem-Lab/
 *.docx
+.claude/

@@ -5,7 +5,7 @@ const el=new Proxy(function(){},{get(t,k){if(k==='length')return 0;if(k==='style
  if(k===Symbol.iterator)return [][Symbol.iterator].bind([]);if(k==='getBoundingClientRect')return()=>({left:0,top:0,width:100,height:100});
  if(k==='map'||k==='forEach'||k==='filter')return()=>[];return el;},set(){return true},apply(){return el},has(){return true}});
 global.document={querySelector:()=>el,querySelectorAll:()=>[],getElementById:()=>el,addEventListener:noop,createElementNS:()=>el,createElement:()=>el,body:el,documentElement:el};
-global.window={matchMedia:()=>({matches:false})};global.localStorage={getItem:()=>null,setItem:noop};global.requestAnimationFrame=noop;global.setTimeout=noop;global.clearTimeout=noop;global.confirm=()=>true;
+global.window={matchMedia:()=>({matches:false}),addEventListener:noop};global.addEventListener=noop;global.localStorage={getItem:()=>null,setItem:noop};global.requestAnimationFrame=noop;global.setTimeout=noop;global.clearTimeout=noop;global.confirm=()=>true;
 const api=new Function(src+'\n;return {GUIDE,SA1,SALTS,evaluate,bullets,probeResult,setSalt:s=>{salt=s}};')();
 // what the pop-up actually prints for each SA1 salt on the key tests
 const cases=[['Dil. H2SO4',['salt','dilH2SO4'],false],['Conc. H2SO4 + heat',['salt','concH2SO4'],true],
