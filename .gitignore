@@ -1,0 +1,7 @@
+node_modules/
+.vercel/
+
+# the original hand-off: the practical records are the student's own documents
+# and are not published with the site
+Chem-Lab/
+*.docx
