@@ -110,9 +110,15 @@ button.reveal-inf{padding:3px 10px;font-size:12px;border-radius:8px;border-style
 .sheet .oi{display:block;margin-top:3px;color:var(--ok);font-weight:600;font-size:11px}
 /* observation pop-up on the bench — the result only, in bullets */
 .popobs{position:absolute;z-index:12;max-width:280px;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--accent);
-  border-radius:10px;box-shadow:0 10px 30px rgba(16,24,40,.22);padding:10px 13px;font-size:13.5px;line-height:1.5;
-  opacity:0;transform:translateY(8px) scale(.97);transition:opacity .2s,transform .2s;pointer-events:none}
-.popobs.show{opacity:1;transform:translateY(0) scale(1)}
+  border-radius:10px;box-shadow:0 10px 30px rgba(16,24,40,.22);padding:10px 30px 10px 13px;font-size:13.5px;line-height:1.5;
+  opacity:0;visibility:hidden;transform:translateY(8px) scale(.97);transition:opacity .2s,transform .2s,visibility .2s;
+  /* the box itself stays transparent to the pointer so it can never swallow a
+     drag aimed at the bench behind it; only the close button takes clicks */
+  pointer-events:none}
+.popobs.show{opacity:1;visibility:visible;transform:translateY(0) scale(1)}
+.popobs .x{position:absolute;top:6px;right:6px;pointer-events:auto;border:0;background:transparent;color:var(--muted);
+  border-radius:50%;width:20px;height:20px;padding:0;box-shadow:none;line-height:0}
+.popobs .x:hover{background:var(--chip);color:var(--ink);box-shadow:none;border-color:transparent}
 .popobs ul{margin:0;padding:0;list-style:none}
 .popobs li{position:relative;padding-left:15px;margin:3px 0;font-weight:600}
 .popobs li:before{content:"";position:absolute;left:2px;top:.55em;width:6px;height:6px;border-radius:50%;background:var(--accent)}
@@ -1352,12 +1358,16 @@ const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 // The result, and nothing else: two or three bullets of what you would actually
 // see, plus the inference when the inferences are showing.
 let popT;
+function hidePop(){ const p=$('#popObs'); if(p) p.classList.remove('show'); clearTimeout(popT); }
 function popObs(vid,e){
   const p=$('#popObs'),v=VESSELS[vid],bl=bullets(e);
   if(!bl.length||e.quiet) return;
   const sw=e.swatch?`<span class="sw" style="background:${e.swatch}"></span>`:'';
-  p.innerHTML=`<ul>${bl.map((b,i)=>`<li>${i===0?sw:''}${esc(b)}</li>`).join('')}</ul>`
+  p.innerHTML=`<button class="x" type="button" tabindex="-1" title="Dismiss">`
+    +`<svg class="ic" viewBox="0 0 24 24" style="width:12px;height:12px" aria-hidden="true"><use href="#i-x"/></svg></button>`
+    +`<ul>${bl.map((b,i)=>`<li>${i===0?sw:''}${esc(b)}</li>`).join('')}</ul>`
     +((showInf&&e.inf&&e.inf!=='—')?`<span class="pi">${esc(e.inf)}</span>`:'');
+  p.querySelector('.x').onclick=hidePop;
   const bm=$('#benchMain').getBoundingClientRect();
   const el=v?$(v.wrap):(typeof vid==='string'?$(vid):null);
   if(el){ const r=el.getBoundingClientRect();
@@ -1365,7 +1375,7 @@ function popObs(vid,e){
     p.style.top=Math.max(4,Math.min(r.top-bm.top+20,bm.height-120))+'px';
   } else { p.style.left='50%'; p.style.top='12px'; }
   p.classList.add('show'); clearTimeout(popT);
-  popT=setTimeout(()=>p.classList.remove('show'),5600);
+  popT=setTimeout(hidePop,9000);          // it still clears itself if you leave it alone
 }
 function refresh(vid,silent){
   const v=VESSELS[vid],res=evaluate(v);
@@ -1812,7 +1822,7 @@ let drag=null,raf=0;
 document.addEventListener('pointerdown',e=>{
   if(e.button!==0||e.target.closest('button,select,input,a,summary')) return;
   const el=e.target.closest('[data-item]'); if(!el) return;
-  e.preventDefault();
+  e.preventDefault(); hidePop();
   drag={id:el.dataset.item,el,x0:e.clientX,y0:e.clientY,x:e.clientX,y:e.clientY,ghost:null,target:null};
 });
 document.addEventListener('pointermove',e=>{
@@ -1990,7 +2000,8 @@ function closeModal(sel){
 }
 document.addEventListener('keydown',e=>{
   if(e.key!=='Escape') return;
-  const open=$$('.modal-bg.show'); if(!open.length) return;
+  const open=$$('.modal-bg.show');
+  if(!open.length){ hidePop(); return; }
   if(document.activeElement&&document.activeElement.id==='saltSearch'&&document.activeElement.value) return;  // first Escape clears the search
   closeModal('#'+open[open.length-1].id);
 });
