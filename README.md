@@ -2,6 +2,10 @@
 
 **Live:** https://chemlab-teamblackwings-projects-cb032a19.vercel.app
 
+> The Vercel project was created with Deployment Protection on, so the link asks
+> for a Vercel login. To open it to everyone:
+> **Vercel → chemlab → Settings → Deployment Protection → Vercel Authentication → Disabled → Save.**
+
 A drag-and-drop chemistry lab for the qualitative analysis of a simple salt,
 following the CBSE Class XI practical scheme. Identify the anion and the cation
 of an unknown salt by doing the tests, not by reading the answer.
