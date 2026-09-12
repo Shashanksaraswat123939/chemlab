@@ -1218,7 +1218,7 @@ const SA1=SA1_NAMES.map(n=>SALTS.find(s=>s.n===n));
 const SA1_IDX=SA1.map(s=>SALTS.indexOf(s));
 let mode='learn';                                   // 'learn' | 'test'
 let showInf=true,pool=new Set(SA1_IDX);              // SA1 three by default
-let theme=(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';
+let theme='light';                                   // light bench by default; the toggle remembers a choice
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 
 function evaluate(v){
@@ -1720,13 +1720,13 @@ function flameTest(rid){
   const t=T(rid||'rodDry'),has=id=>t.items.includes(id);
   const hasSalt=has('salt')||has('saltSoln'),conc=has('concHCl'),dil=has('dilHCl')||has('concHNO3');
   const f=FLAME[salt.c]||FLAME.none;
-  let obs,inf,hex=null,exp,bul=null;
+  let obs,inf,hex=null,exp,bul=null,setup=false;
   if(!t.items.length){
     exp='A clean glass rod is introduced into the non-luminous flame';
     obs='The clean rod gives no colour to the flame.'; inf='—'; bul=['No colour — the rod is clean'];
   } else {
     exp='Rod coated with '+describeLoad(t)+', introduced into the non-luminous Bunsen flame';
-    if(!hasSalt){ obs='No characteristic colouration — there is no salt on the rod.'; inf='—'; bul=['No colour — no salt on the rod']; }
+    if(!hasSalt){ obs='No characteristic colouration — there is no salt on the rod.'; inf='Not a result — dip the rod in the salt first.'; setup=true; bul=['No colour — no salt on the rod']; }
     else if(conc||dil){
       hex=f.hex;
       obs=f.obs+(!conc&&dil?' The colour is weak; conc. HCl gives a cleaner flame.':'');
@@ -1734,7 +1734,8 @@ function flameTest(rid){
     } else if(f.hex){                       // salt alone: chloride never forms
       hex=f.hex;
       obs='Only a brief, faint tinge of colour that dies away at once.';
-      inf='Not conclusive — the volatile chloride has not been formed'; bul=['A brief, faint tinge only','Dies away at once'];
+      inf='Not a result — without conc. HCl on the rod the volatile chloride never forms, so the colour cannot develop.';
+      setup=true; bul=['A brief, faint tinge only','Dies away at once'];
     } else { obs=f.obs; inf=f.inf; bul=[f.obs.replace(/\.$/,'')]; }
   }
   const b=$('#burner');
@@ -1744,16 +1745,22 @@ function flameTest(rid){
   setTimeout(()=>{ $('#rodOverlay').classList.remove('show'); b.style.setProperty('--flame','#60a5fa'); },4500);
   delete tools[rid||'rodDry'];              // the coating burns off, so the rod is clean again
   renderShelf(currentCat); renderBenchTools(); renderContents();
-  const e={sec:PH,test:'Flame test',exp,obs,inf,b:bul,doneId:(hasSalt&&(conc||dil))?'flame':null,swatch:hex,recordable:true};
+  const e={sec:PH,test:'Flame test',exp,obs,inf,b:bul,shown:setup,doneId:(hasSalt&&(conc||dil))?'flame':null,swatch:hex,recordable:!setup};
   showObs(e); popObs('#burner',e);
 }
 function ashTest(){
   const t=T('filterPaper'),has=id=>t.items.includes(id);
-  if(!has('salt')||!has('concHNO3')||!has('CoNO3')){
+  // A paper that was not dipped in all three burns to an ordinary black ash — but
+  // that is not a result, it means the test was never set up. Say which part is
+  // missing rather than handing back something that reads like a finding.
+  const need=['salt','concHNO3','CoNO3'].filter(id=>!has(id));
+  if(need.length){
     const o=t.items.length?'The paper burns away leaving an ordinary black ash.':'The dry paper simply burns away.';
     const e={sec:PH,test:'Ash test',exp:(t.items.length?'Filter paper carrying '+describeLoad(t):'A dry filter paper')+' burnt in the flame',
-      obs:o,inf:'—',b:[o.replace(/\.$/,'')],recordable:t.items.length>0};
+      obs:o,inf:'Not a result — the paper was never soaked in '+need.map(label).join(' + ')+', so there is nothing for the cobalt oxide to colour.',
+      shown:true,b:[o.replace(/\.$/,''),'Nothing on the paper to give a colour'],recordable:false};
     showObs(e); popObs('#burner',e);
+    toast('Put salt + conc. HNO₃ + cobalt nitrate in a vessel, dip the filter paper in that, then burn it.');
     delete tools.filterPaper; renderShelf(currentCat); renderBenchTools(); renderContents(); return;
   }
   const a=ASH[salt.c]||ASH.none;
