@@ -71,6 +71,18 @@ console.log(`all ${api.SALTS.length} salts x every test x heated/cold: ${crash} 
       api.SA1.forEach(s=>{ const r=api.simFor(t,s);
         if(!r.obs||r.obs==='—'||!r.inf||r.inf==='—'){ console.log('FAIL '+t.id+' gives nothing for '+s.f); bad++; } });
     });
+    // The row you write against a group-zero salt has to be the row you would have
+    // got by carrying the test out -- otherwise the record says one thing and the
+    // chemistry another.
+    const amm=api.SALTS.find(x=>x.n==='Ammonium carbonate');
+    cat.tests.filter(t=>t.skipIfZero).forEach(t=>{
+      if(!t.absent){ console.log('FAIL '+t.id+' has no row to write'); bad++; return; }
+      const r=api.simFor(t,amm);
+      if(r.inf.indexOf(t.absent)!==0){
+        console.log('FAIL '+t.id+' would be written "'+t.absent+'" but performing gives "'+r.inf+'"'); bad++; }
+      if(r.obs.indexOf('No characteristic precipitate')!==0){
+        console.log('FAIL '+t.id+' on an ammonium salt observes "'+r.obs+'", not an absence'); bad++; }
+    });
   }
   console.log('\ncation preliminary tests: '+(bad?bad+' PROBLEMS':'1-7 numbered, 5-7 writable without performing, all three still work'));
   if(bad) process.exitCode=1;

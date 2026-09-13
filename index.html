@@ -976,11 +976,14 @@ const GUIDE=[
    why:'The dil. HCl is there to suppress the ionisation of H₂S, keeping [S²⁻] low. Only the very insoluble Group II sulphides can precipitate at that low concentration — <code>Cu²⁺ + S²⁻ → CuS↓</code> black. Group IV sulphides need an alkaline medium and stay in solution here.'},
   {id:'g3',name:'4. Group III (Al³⁺) — NH₄Cl, then excess NH₄OH',steps:['Salt solution + solid NH₄Cl; boil, then cool.','Add NH₄OH in excess.'],needs:['saltSoln','NH4Cl','heat','NH4OH'],sim:{items:['saltSoln','NH4Cl','NH4OH'],heated:true},
    why:'The NH₄Cl is a common-ion buffer: it pushes NH₄OH’s equilibrium back so [OH⁻] stays low. Only the least soluble hydroxides come down — <code>Al³⁺ + 3OH⁻ → Al(OH)₃↓</code>, a white gelatinous mass. Without the NH₄Cl the later groups would precipitate here too.'},
-  {id:'g4',name:'5. Group IV (Zn²⁺, Mn²⁺, Ni²⁺, Co²⁺) — NH₄Cl + NH₄OH + (NH₄)₂S',steps:['Salt solution + solid NH₄Cl; boil, then cool.','Add NH₄OH until the solution is alkaline.','Add ammonium sulphide solution.'],needs:['saltSoln','NH4Cl','NH4OH','NH4_2S'],sim:{items:['saltSoln','NH4OH','NH4_2S']},skipIfZero:true,
+  {id:'g4',name:'5. Group IV (Zn²⁺, Mn²⁺, Ni²⁺, Co²⁺) — NH₄Cl + NH₄OH + (NH₄)₂S',steps:['Salt solution + solid NH₄Cl; boil, then cool.','Add NH₄OH in excess.','Add 3 drops of ammonium sulphide solution.'],needs:['saltSoln','NH4Cl','NH4OH','NH4_2S'],sim:{items:['saltSoln','NH4Cl','NH4OH','NH4_2S']},
+   skipIfZero:true,absent:'Absence of Group IV (Zn²⁺, Ni²⁺, Co²⁺, Mn²⁺)',
    why:'The same sulphide as Group II, in the opposite medium. Alkali removes H⁺, so H₂S ionises freely and [S²⁻] is now high — high enough for the more soluble sulphides that the acid medium of Group II deliberately kept in solution: <code>Zn²⁺ → ZnS↓</code> dirty white, <code>Mn²⁺ → MnS↓</code> buff, Ni²⁺ and Co²⁺ black.'},
-  {id:'g5',name:'6. Group V (Ba²⁺, Sr²⁺, Ca²⁺) — NH₄Cl + NH₄OH + (NH₄)₂CO₃',steps:['Salt solution + solid NH₄Cl; boil, then cool.','Add NH₄OH until alkaline.','Add ammonium carbonate solution.'],needs:['saltSoln','NH4Cl','NH4OH','NH4_2CO3'],sim:{items:['saltSoln','NH4OH','NH4_2CO3']},skipIfZero:true,
+  {id:'g5',name:'6. Group V (Ba²⁺, Sr²⁺, Ca²⁺) — NH₄Cl + NH₄OH + (NH₄)₂CO₃',steps:['Salt solution + solid NH₄Cl; boil, then cool.','Add NH₄OH in excess.','Add ammonium carbonate solution.'],needs:['saltSoln','NH4Cl','NH4OH','NH4_2CO3'],sim:{items:['saltSoln','NH4Cl','NH4OH','NH4_2CO3']},
+   skipIfZero:true,absent:'Absence of Group V (Ba²⁺, Ca²⁺, Sr²⁺)',
    why:'The alkaline earths are caught as carbonates: <code>Ba²⁺, Sr²⁺, Ca²⁺ + CO₃²⁻ → white ↓</code>. The NH₄Cl matters again — the ammonium ion it supplies keeps magnesium in solution as the soluble MgCl₂, so Mg²⁺ is left for the next group instead of coming down here.'},
-  {id:'g6',name:'7. Group VI (Mg²⁺) — NH₄OH + Na₂HPO₄',steps:['Salt solution + NH₄OH.','Add disodium hydrogen phosphate solution and scratch the side of the tube.'],needs:['saltSoln','NH4OH','Na2HPO4'],sim:{items:['saltSoln','NH4OH','Na2HPO4']},skipIfZero:true,
+  {id:'g6',name:'7. Group VI (Mg²⁺) — NH₄OH + Na₂HPO₄',steps:['Salt solution + solid NH₄Cl.','Add NH₄OH in slight excess.','Add disodium hydrogen phosphate solution and scratch the side of the tube.'],needs:['saltSoln','NH4Cl','NH4OH','Na2HPO4'],sim:{items:['saltSoln','NH4Cl','NH4OH','Na2HPO4']},
+   skipIfZero:true,absent:'Absence of Group VI (Mg²⁺)',
    why:'Whatever has survived every earlier group is magnesium, and it is thrown down as a double salt: <code>Mg²⁺ + NH₄⁺ + HPO₄²⁻ → MgNH₄PO₄↓</code>, white and crystalline. Scratching the glass gives the crystals somewhere to start, which is why the tube is scratched.'},
  ]},
  {sec:'III-B. Cation — confirmatory tests',tests:[
@@ -1661,29 +1664,33 @@ function renderGuide(){
      +(selectedTest===t?cmpTable(t):'')+`</div>`).join('')}</details>`).join('');
 }
 const zeroFound=()=>notebook.some(e=>/presence of group 0/i.test(e.inf||''));
+// Once the cation is group zero, groups IV, V and VI cannot be there — so the
+// record carries the row with "no characteristic precipitate" against it and the
+// experiment is never carried out. That is a deduction, not a measurement, which
+// is why it is written rather than performed.
 function notPerformedBox(t){
   const already=notebook.some(e=>e.test===t.name);
-  // Test mode states the observation and the rule, and leaves the conclusion where
-  // it belongs -- with the student.
   return '<div class="notperf"><b>Write it down, do not perform it</b>'
     +(mode==='learn'
-      ?'Your group 0 test has already given ammonia, so the cation is NH₄⁺ and the salt is settled. Groups'
-      :'Your group 0 test gave ammonia. Where the cation is group zero, groups')
-    +' IV, V and VI are not carried out — but the record still wants the row against them.'
+      ?'Your group 0 test has already given ammonia, so the cation is NH₄⁺. Nothing is left for groups IV, V and VI to find, '
+      :'Your group 0 test gave ammonia. Where the cation is group zero nothing is left for groups IV, V and VI to find, ')
+    +'so the row goes in as <i>no characteristic precipitate</i> without the test being carried out.'
+    +'<div style="margin-top:7px;color:var(--ink2)"><b style="text-transform:none;letter-spacing:0;font-size:12.5px;display:inline">Row:</b> '
+    +'No characteristic precipitate. &nbsp;·&nbsp; '+esc(t.absent)+'</div>'
     +'<button type="button" data-np="'+t.id+'"'+(already?' disabled':'')+'>'
-    +(already?'Already written in':'Write it into the notebook')+'</button></div>';
+    +(already?'Already written in':'Write this row in')+'</button></div>';
 }
 function recordNotPerformed(id){
-  const t=GUIDE.flatMap(s=>s.tests).find(x=>x.id===id); if(!t) return;
+  const t=GUIDE.flatMap(s=>s.tests).find(x=>x.id===id); if(!t||!t.absent) return;
   if(notebook.some(e=>e.test===t.name)){ toast('That row is already in the notebook.'); return; }
   notebook.push({sec:SEC_OF.get(t),test:t.name,
     exp:t.steps.map(x=>x.replace(/<[^>]+>/g,'')).join(' '),
-    obs:'Not performed.',
-    inf:'The cation is already identified as group zero (NH₄⁺), so groups IV, V and VI are not tested.',
+    obs:'No characteristic precipitate.',
+    inf:t.absent,
     smell:null});
   done.add(t.id);
   renderNotebook(); renderProgress(); renderGuide(); save();
-  toast('Written into the notebook as not performed.');
+  toast('Row written in. The test itself is not carried out.');
 }
 function selectTest(t){
   selectedTest=t;
