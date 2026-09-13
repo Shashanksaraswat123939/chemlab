@@ -524,6 +524,17 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
   .bench-card .mini button{padding:4px 6px;font-size:0}          /* icon only */
   .bench-card .mini button .ic{width:14px;height:14px;font-size:12px}
 }
+@media (pointer:coarse){
+  button{min-height:40px}
+  .tabs button,.side-tabs button{min-height:46px}
+  .actions button{min-height:42px;padding-left:13px;padding-right:13px}
+  .bench-card .mini button{min-height:40px;min-width:40px}
+  .tg{min-height:40px}
+  .item{padding:12px 5px 10px}
+  .chip{padding:7px 12px 7px 8px;font-size:13px}
+  .items{gap:10px;padding:12px}
+  .split{width:22px}               /* the drag handle between panels is thin for a finger */
+}
 @media (max-width:900px){           /* portrait tablet and below: stack */
   header{height:auto;flex-wrap:wrap;gap:10px;padding:10px 14px}
   .salt-tag{margin-left:0}
