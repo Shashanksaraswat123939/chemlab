@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Qualitative analysis of a simple salt — a drag-and-drop lab for the CBSE Class XI practical.">
 <title>ChemLab · Qualitative Salt Analysis (CBSE XI)</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='l' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%2360a5fa'/%3E%3Cstop offset='1' stop-color='%232563eb'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230f172a'/%3E%3Cpath d='M25 10h14v5h-3v17.5l10.5 18A5 5 0 0 1 42 58H22a5 5 0 0 1-4.5-7.5L28 32.5V15h-3z' fill='%23e2e8f0'/%3E%3Cpath d='M23.2 42h17.6l5.7 8.5A5 5 0 0 1 42 58H22a5 5 0 0 1-4.5-7.5z' fill='url(%23l)'/%3E%3Ccircle cx='28' cy='50' r='2.6' fill='%23bfdbfe'/%3E%3Ccircle cx='36' cy='47' r='1.8' fill='%23bfdbfe'/%3E%3Ccircle cx='33' cy='53' r='1.4' fill='%23bfdbfe'/%3E%3C/svg%3E">
 <style>
@@ -41,7 +43,11 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{margin:0;height:100%}
-body{font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif;background:var(--page);color:var(--ink);font-size:14.5px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,Roboto,'Helvetica Neue',sans-serif;
+  background:var(--page);color:var(--ink);font-size:14.5px;
+  -webkit-text-size-adjust:100%;text-size-adjust:100%;                 /* iOS must not inflate our text */
+  -webkit-tap-highlight-color:transparent;                              /* no grey flash on tap */
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale} /* matches native weight on macOS */
 button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:7px 12px;transition:.15s;display:inline-flex;align-items:center;gap:6px;justify-content:center}
 button:hover:not(:disabled){border-color:var(--accent);box-shadow:0 2px 8px rgba(37,99,235,.16)}
 button:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
@@ -59,7 +65,8 @@ h1,h2,h3{margin:0}
   *,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
 }
 /* ---------- header ---------- */
-header{height:60px;display:flex;align-items:center;gap:18px;padding:0 18px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+header{height:60px;display:flex;align-items:center;gap:18px;padding:0 18px;background:var(--surface);border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:20;transform:translateZ(0)}   /* own layer: stops iOS flickering it behind the SVG bench */
 .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px}
 .brand small{font-weight:500;color:var(--muted);font-size:12px;display:block}
 .brand .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#0ea5e9);display:grid;place-items:center;color:var(--surface);font-size:18px}
@@ -145,7 +152,16 @@ button.reveal-inf{padding:3px 10px;font-size:12px;border-radius:8px;border-style
 
 /* ---------- layout ---------- */
 main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);height:calc(100vh - 60px);gap:0;padding:14px}
+@supports (height:100dvh){ main{height:calc(100dvh - 60px)} }
 :root{--colL:300px;--colR:390px}
+/* Pin each item to its own column. Without this, hiding the shelf takes it out
+   of the grid entirely and auto-placement slides everything one column left,
+   dropping the bench into the 14px divider track. */
+#shelfPanel{grid-column:1}
+#splitL{grid-column:2}
+.bench{grid-column:3}
+#splitR{grid-column:4}
+#sidePanel{grid-column:5}
 /* Drag a splitter to give a panel more room; double-click one to put it back.
    Arrow keys move it too, so it is not a mouse-only control. */
 .split{position:relative;cursor:col-resize;touch-action:none;display:grid;place-items:center;z-index:6}
@@ -154,6 +170,18 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 .split:focus-visible{outline:none}
 .split:focus-visible:before{background:var(--accent);height:76px;box-shadow:0 0 0 3px rgba(37,99,235,.3)}
 .split[aria-hidden="true"]{display:none}
+/* the fold arrow rides on the divider, so it stays put when the panel folds away */
+.split .tog{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:20px;height:38px;padding:0;
+  border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:7px;
+  box-shadow:0 2px 8px rgba(16,24,40,.16);display:grid;place-items:center;z-index:3;cursor:pointer}
+.split .tog:hover:not(:disabled){border-color:var(--accent);color:var(--accent);box-shadow:0 3px 10px rgba(37,99,235,.25)}
+.split .tog .ic{width:13px;height:13px}
+.split.folded{cursor:default}
+.split.folded:before{opacity:.3;height:26px}
+.panel.is-hidden{display:none}
+@media (max-width:1100px){
+  .panel.is-hidden{display:flex}   /* the stacked layout has no room to fold anything away */
+}
 .panel{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;min-height:0}
 .panel-h{padding:12px 14px;border-bottom:1px solid var(--line);font-weight:700;font-size:13px;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
 /* ---------- shelf ---------- */
@@ -167,7 +195,7 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 .chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--accent-line);border-radius:999px;padding:4px 10px 4px 6px;font-size:12.5px;cursor:grab;user-select:none;touch-action:pan-y}
 .chip svg{width:16px;height:20px}
 .chip.static{cursor:default;background:var(--accent-soft);border-style:dashed}
-.items{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px;overflow:auto}
+.items{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px 6px;border-radius:12px;background:var(--surface);border:1px solid var(--line);cursor:grab;user-select:none;touch-action:pan-y;transition:.15s}
 .item svg{width:44px;height:58px}
 .item span{font-size:11.5px;text-align:center;line-height:1.25}
@@ -175,10 +203,10 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 .item.hl{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.22);background:var(--accent-bg)}
 .item.hl:after{content:"needed";font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--accent)}
 /* ---------- bench ---------- */
-.bench{container-type:inline-size;position:relative;background:
+.bench{container-type:inline-size;position:relative;--ap:1;background:
   radial-gradient(1200px 400px at 50% 120%,var(--bench-gloss),transparent),
   linear-gradient(180deg,var(--bench-air) 0%,var(--bench-air) 62%,var(--wood1) 62%,var(--wood2) 100%);}
-.bench-top{display:flex;gap:14px;padding:14px 18px 0}
+.bench-top{display:flex;gap:14px;padding:14px 18px 0;position:relative;z-index:2}
 .bench-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:grab;user-select:none;touch-action:none;transition:.15s}
 .bench-card:hover{box-shadow:var(--shadow);border-color:var(--accent-line)}
 .bench-card svg{width:56px;height:56px}
@@ -186,7 +214,7 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 .bench-card small{color:var(--muted);font-size:11px}
 .bench-card .mini{display:flex;gap:6px;margin-top:6px}
 .bench-card .mini button{padding:4px 8px;font-size:11px;border-radius:8px}
-.bench-main{--ap:1;position:absolute;left:0;right:0;top:120px;bottom:70px;display:flex;align-items:flex-end;justify-content:space-evenly;padding:0 20px 26px}
+.bench-main{--ap:1;z-index:1;position:absolute;left:0;right:0;top:120px;bottom:70px;display:flex;align-items:flex-end;justify-content:space-evenly;padding:0 20px 26px}
 /* The bench scales to the width it actually has, not the window's, so narrowing
    it with the splitter keeps the apparatus in proportion instead of colliding.
    The four pieces measure 670px side by side, plus 40px of padding, so full size
@@ -233,7 +261,7 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 .sink{width:calc(160px*var(--ap));height:calc(96px*var(--ap));border-radius:14px;background:linear-gradient(180deg,var(--sink1),var(--sink2));border:2px solid var(--sink-line);display:grid;place-items:center;color:var(--sink-ink);font-size:12px;text-align:center;position:relative;margin-bottom:6px}
 .sink:before{content:"";position:absolute;top:-26px;right:26px;width:8px;height:34px;background:var(--sink-line);border-radius:4px 4px 0 0}
 .sink:after{content:"";position:absolute;top:-26px;right:8px;width:30px;height:8px;background:var(--sink-line);border-radius:4px}
-.contents-bar{position:absolute;left:14px;right:14px;bottom:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px;display:flex;align-items:center;gap:8px;height:46px}
+.contents-bar{z-index:3;position:absolute;left:14px;right:14px;bottom:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px;display:flex;align-items:center;gap:8px;height:46px}
 .contents-bar .chips{flex:1;min-width:0;display:flex;align-items:center;gap:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;padding-bottom:2px}
 .contents-bar .chips>*{flex:0 0 auto}
 .contents-bar .tools{flex:0 0 auto;display:flex;gap:6px}
@@ -268,6 +296,26 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 .benchtool .bt-x{flex:0 0 auto;border:0;background:var(--chip);color:var(--muted);border-radius:50%;
   width:18px;height:18px;padding:0;box-shadow:none}
 .benchtool .bt-x:hover{background:var(--bad);color:#fff;box-shadow:none;border-color:transparent}
+/* ---------- the picture on the lab wall ----------
+   It hangs behind the apparatus and takes no pointer events, so it can never
+   get in the way of a drag; only its close button is clickable. */
+.portrait{position:absolute;right:26px;top:210px;width:142px;margin:0;z-index:0;pointer-events:none;
+  padding:9px;background:linear-gradient(160deg,#8a6a43,#6b5133);border-radius:5px;
+  box-shadow:0 14px 28px rgba(16,24,40,.32),inset 0 0 0 1px rgba(255,255,255,.18);
+  transition:opacity .3s,transform .3s}
+.portrait:before{content:"";position:absolute;left:50%;top:-16px;width:2px;height:16px;background:rgba(80,60,40,.75)}
+.portrait img{display:block;width:100%;height:auto;border-radius:2px;border:1px solid rgba(0,0,0,.35)}
+.portrait[hidden]{display:none}
+.portrait .pt-x{position:absolute;top:-9px;right:-9px;pointer-events:auto;width:22px;height:22px;padding:0;
+  border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:50%;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);display:grid;place-items:center;opacity:0;transition:opacity .2s}
+.portrait:hover .pt-x,.portrait .pt-x:focus-visible{opacity:1}
+.portrait .pt-x:hover{background:var(--bad);color:#fff;border-color:var(--bad)}
+.portrait .pt-x .ic{width:11px;height:11px}
+.pt-show{position:absolute;right:26px;top:210px;z-index:2;font-size:11.5px;padding:5px 11px;border-radius:999px;
+  background:var(--panel);border:1px dashed var(--line);color:var(--muted);opacity:.75}
+.pt-show:hover{opacity:1;border-style:solid}
+@container (max-width:620px){.portrait,.pt-show{display:none}}
 /* ---------- side ---------- */
 .obs{padding:14px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--surface),var(--accent-bg))}
 .obs .head{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
@@ -289,10 +337,10 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 .side-tabs button:hover:not(:disabled){box-shadow:none;color:var(--ink);background:var(--hover)}
 .side-tabs button.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--accent-bg)}
 .side-tabs button:focus-visible{box-shadow:inset 0 0 0 2px var(--accent);border-radius:0}
-.side-body{overflow:auto;flex:1;min-height:0}
+.side-body{overflow:auto;flex:1;min-height:0;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 /* rough notebook */
 .rough{display:flex;flex-direction:column;height:100%;min-height:320px;padding:10px 12px 8px}
-#roughText{flex:1;width:100%;min-height:240px;resize:none;font:13px/1.6 'Segoe UI',system-ui,sans-serif;color:var(--ink);
+#roughText{flex:1;width:100%;min-height:240px;resize:none;font:13px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;color:var(--ink);
   padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:
   repeating-linear-gradient(180deg,transparent,transparent 24px,var(--chip) 24px,var(--chip) 25px) 0 6px/100% 25px,var(--paper)}
 #roughText:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
@@ -384,7 +432,8 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 .pool-h b{color:var(--ink);font-size:13px}
 .pool-h .sp{flex:1}
 .pool-h button{padding:4px 10px;font-size:12px;border-radius:8px}
-.search{width:100%;font:inherit;font-size:13px;margin-top:8px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--field)}
+.search{width:100%;font:inherit;font-size:13px;margin-top:8px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--field);color:var(--ink);
+  -webkit-appearance:none;appearance:none}   /* Safari rounds search inputs into pills otherwise */
 .search:focus{outline:none;border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
 .saltlist{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:8px;max-height:36vh;overflow:auto;padding:2px}
 .saltlist .none{grid-column:1/-1;text-align:center;color:var(--muted);padding:22px 10px;font-size:13px}
@@ -433,6 +482,7 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
   header{height:auto;flex-wrap:wrap;gap:10px;padding:10px 14px}
   .salt-tag{margin-left:0}
   main{grid-template-columns:1fr;height:auto;gap:14px}
+  #shelfPanel,#splitL,.bench,#splitR,#sidePanel{grid-column:auto}
   .split{display:none}
   .bench{min-height:720px}
   .items{grid-template-columns:repeat(5,1fr)}
@@ -473,6 +523,8 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
   <g id="i-shelf"><path d="M9 3v6.2L4.6 17A2.6 2.6 0 0 0 6.9 21h10.2a2.6 2.6 0 0 0 2.3-3.9L15 9.2V3z"/><path d="M7.5 3h9M7 14h10"/></g>
   <g id="i-list"><path d="M8 6h12M8 12h12M8 18h12M3.6 6h.01M3.6 12h.01M3.6 18h.01"/></g>
   <g id="i-sun"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></g>
+  <g id="i-chevL"><path d="M15 5l-7 7 7 7"/></g>
+  <g id="i-chevR"><path d="M9 5l7 7-7 7"/></g>
   <g id="i-moon"><path d="M20.5 14.3A8.6 8.6 0 0 1 9.7 3.5a8.6 8.6 0 1 0 10.8 10.8z"/></g>
 </defs></svg>
 <header>
@@ -494,7 +546,7 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 
 <main>
   <!-- ===== SHELF ===== -->
-  <aside class="panel" aria-label="Reagent shelf">
+  <aside class="panel" id="shelfPanel" aria-label="Reagent shelf">
     <div class="panel-h"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-shelf"/></svg>Reagent shelf <span style="margin-left:auto;font-weight:500;text-transform:none;letter-spacing:0">drag, or click to add</span></div>
     <div class="tray hidden" id="tray"><h4 id="trayTitle">Needed for this test</h4><div class="chips" id="trayChips"></div></div>
     <div class="tabs" id="shelfTabs" role="tablist" aria-label="Shelf category">
@@ -506,7 +558,8 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
   </aside>
 
   <div class="split" id="splitL" role="separator" aria-orientation="vertical" tabindex="0"
-       aria-label="Width of the reagent shelf — drag, or use the arrow keys; double-click to reset"></div>
+       aria-label="Width of the reagent shelf — drag, or use the arrow keys; double-click to reset"
+    ><button class="tog" data-fold="L" type="button" aria-expanded="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevL"/></svg></button></div>
 
   <!-- ===== BENCH ===== -->
   <section class="panel bench">
@@ -526,6 +579,11 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
       </div>
     </div>
 
+    <figure class="portrait" id="portrait">
+      <img src="portrait.jpg" alt="Portrait hanging on the lab wall" width="640" height="640" decoding="async">
+      <button class="pt-x" id="ptHide" type="button" title="Hide the picture" aria-label="Hide the picture on the wall"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </figure>
+    <button class="pt-show" id="ptShow" type="button" hidden>Show picture</button>
     <div class="bench-main" id="benchMain">
       <div class="stand">
         <div class="clamp"></div>
@@ -614,10 +672,11 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
   </section>
 
   <div class="split" id="splitR" role="separator" aria-orientation="vertical" tabindex="0"
-       aria-label="Width of the observations panel — drag, or use the arrow keys; double-click to reset"></div>
+       aria-label="Width of the observations panel — drag, or use the arrow keys; double-click to reset"
+    ><button class="tog" data-fold="R" type="button" aria-expanded="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevR"/></svg></button></div>
 
   <!-- ===== SIDE ===== -->
-  <aside class="panel" aria-label="Observations and procedure">
+  <aside class="panel" id="sidePanel" aria-label="Observations and procedure">
     <div class="obs" id="obs" aria-live="polite">
       <div class="head"><span class="badge" id="obsTest">Ready</span><span class="badge sec" id="obsSec"></span></div>
       <div class="row"><b>Experiment</b><div id="obsExp">Pick a test from the procedure below, or drag reagents on to the test tube.</div></div>
@@ -1610,11 +1669,13 @@ function drawSalt(avoid){
 // Only the settings persist. The salt is never restored — reloading gives a fresh
 // unknown, and a notebook from the previous salt would not belong to it.
 function save(){ try{ const r=document.getElementById('roughText');
-  localStorage.setItem('chemlab',JSON.stringify({mode,theme,cols,pool:[...pool],last:SALTS.indexOf(salt),rough:r?r.value:''})); }catch(e){} }
+  localStorage.setItem('chemlab',JSON.stringify({mode,theme,cols,folded,portrait:showPortrait,pool:[...pool],last:SALTS.indexOf(salt),rough:r?r.value:''})); }catch(e){} }
 function load(){ try{ const d=JSON.parse(localStorage.getItem('chemlab')); if(d){
   if(d.mode==='learn'||d.mode==='test') mode=d.mode;
   if(d.theme==='light'||d.theme==='dark') theme=d.theme;
   if(d.cols&&typeof d.cols.L==='number'&&typeof d.cols.R==='number') cols={L:d.cols.L,R:d.cols.R};
+  if(d.folded) folded={L:!!d.folded.L,R:!!d.folded.R};
+  if(typeof d.portrait==='boolean') showPortrait=d.portrait;
   if(typeof d.rough==='string'){ const r=document.getElementById('roughText'); if(r) r.value=d.rough; }
   if(Array.isArray(d.pool)&&d.pool.length) pool=new Set(d.pool.filter(i=>SALTS[i]));
   return SALTS[d.last]||null; } }catch(e){} return null; }
@@ -2042,33 +2103,49 @@ $('#saltSearch').onkeydown=e=>{ if(e.key==='Escape'&&e.target.value){ e.stopProp
    --------------------------------------------------------- */
 const COL_DEF={L:300,R:390},COL_MIN={L:210,R:300},COL_MAX={L:460,R:620},BENCH_MIN=430;
 let cols={L:COL_DEF.L,R:COL_DEF.R};
+let folded={L:false,R:false};
+const widthOf=k=>folded[k]?0:cols[k];
 function clampCols(){
   const avail=Math.max(320,window.innerWidth-28-28);           // page padding + both splitters
   for(const k of ['L','R']) cols[k]=Math.min(COL_MAX[k],Math.max(COL_MIN[k],Math.round(cols[k])));
-  let over=(cols.L+cols.R+BENCH_MIN)-avail;
-  // take the overflow off the wider panel first, never below its minimum
+  let over=(widthOf('L')+widthOf('R')+BENCH_MIN)-avail;
+  // take the overflow off the wider open panel first, never below its minimum
   while(over>0){
-    const k=(cols.L-COL_MIN.L)>=(cols.R-COL_MIN.R)?'L':'R';
-    const room=cols[k]-COL_MIN[k];
-    if(room<=0) break;
-    const cut=Math.min(room,over); cols[k]-=cut; over-=cut;
+    const open=['L','R'].filter(k=>!folded[k]&&cols[k]>COL_MIN[k]);
+    if(!open.length) break;
+    const k=open.length===2?((cols.L-COL_MIN.L)>=(cols.R-COL_MIN.R)?'L':'R'):open[0];
+    const cut=Math.min(cols[k]-COL_MIN[k],over); cols[k]-=cut; over-=cut;
   }
 }
+const FOLD_NAME={L:'the reagent shelf',R:'the observations panel'};
 function applyCols(){
   clampCols();
-  document.documentElement.style.setProperty('--colL',cols.L+'px');
-  document.documentElement.style.setProperty('--colR',cols.R+'px');
+  document.documentElement.style.setProperty('--colL',widthOf('L')+'px');
+  document.documentElement.style.setProperty('--colR',widthOf('R')+'px');
+  const sp=$('#shelfPanel'),ap=$('#sidePanel');
+  if(sp) sp.classList.toggle('is-hidden',folded.L);
+  if(ap) ap.classList.toggle('is-hidden',folded.R);
   if(typeof renderBenchTools==='function') renderBenchTools();
   for(const [id,k] of [['#splitL','L'],['#splitR','R']]){
     const el=$(id); if(!el) continue;
-    el.setAttribute('aria-valuenow',cols[k]);
-    el.setAttribute('aria-valuemin',COL_MIN[k]); el.setAttribute('aria-valuemax',COL_MAX[k]);
+    el.classList.toggle('folded',folded[k]);
+    el.setAttribute('aria-valuenow',widthOf(k));
+    el.setAttribute('aria-valuemin',0); el.setAttribute('aria-valuemax',COL_MAX[k]);
+    const t=el.querySelector('.tog'); if(!t) continue;
+    t.setAttribute('aria-expanded',String(!folded[k]));
+    const lbl=(folded[k]?'Show ':'Hide ')+FOLD_NAME[k];
+    t.setAttribute('title',lbl); t.setAttribute('aria-label',lbl);
+    // the arrow always points the way the panel will travel
+    const away=(k==='L')?'#i-chevL':'#i-chevR', back=(k==='L')?'#i-chevR':'#i-chevL';
+    t.querySelector('use').setAttribute('href',folded[k]?back:away);
   }
 }
+function toggleFold(k){ folded[k]=!folded[k]; applyCols(); save(); }
+document.addEventListener('click',e=>{ const b=e.target.closest('.tog'); if(b) toggleFold(b.dataset.fold); });
 function dragSplit(id,k,dir){
   const el=$(id);
   el.addEventListener('pointerdown',e=>{
-    if(e.button!==0) return;
+    if(e.button!==0||e.target.closest('.tog')||folded[k]) return;
     e.preventDefault(); el.setPointerCapture(e.pointerId); el.classList.add('dragging');
     const x0=e.clientX,w0=cols[k];
     const move=ev=>{ cols[k]=w0+(ev.clientX-x0)*dir; applyCols(); };
@@ -2078,6 +2155,7 @@ function dragSplit(id,k,dir){
     el.addEventListener('pointerup',up); el.addEventListener('pointercancel',up);
   });
   el.addEventListener('keydown',e=>{
+    if(folded[k]) return;
     const step=e.shiftKey?48:12;
     if(e.key==='ArrowLeft') cols[k]-=step*dir;
     else if(e.key==='ArrowRight') cols[k]+=step*dir;
@@ -2101,6 +2179,16 @@ function applyTheme(){
   $('#btnTheme').setAttribute('aria-label',dark?'Switch to the light bench':'Switch to the dark bench');
 }
 $('#btnTheme').onclick=()=>{ theme=theme==='dark'?'light':'dark'; applyTheme(); save(); };
+// The picture hanging on the lab wall. Hide it with its cross; the pill brings it
+// back, so hiding it is never a one-way door.
+let showPortrait=true;
+function applyPortrait(){
+  const f=$('#portrait'),b=$('#ptShow');
+  if(!f||!b) return;
+  f.hidden=!showPortrait; b.hidden=showPortrait;
+}
+$('#ptHide').onclick=()=>{ showPortrait=false; applyPortrait(); save(); $('#ptShow').focus(); };
+$('#ptShow').onclick=()=>{ showPortrait=true; applyPortrait(); save(); $('#ptHide').focus(); };
 function applySettings(){
   showInf=(mode==='learn');
   document.body.classList.toggle('hide-inf',!showInf);
@@ -2134,7 +2222,7 @@ $('#selCation').innerHTML=Object.entries(CATIONS).map(([k,v])=>`<option value="$
 const prevSalt=load();          // settings only; the unknown is drawn fresh every load
 salt=drawSalt(prevSalt);
 save();                         // record it now, so the next load avoids repeating it
-applyTheme(); applyCols(); applySettings(); renderSaltList(); roughCount();
+applyTheme(); applyPortrait(); applyCols(); applySettings(); renderSaltList(); roughCount();
 renderShelf('acid'); renderGuide(); renderCompareSheet(); renderDish(); renderNotebook(); renderBenchTools(); renderProgress(); refresh('beaker',true); refresh('tube');
 showObs({test:'Welcome',sec:'',exp:'An unknown simple salt is given. Identify its anion and cation.',obs:'Choose a test in the procedure guide, drag the reagents it needs on to the test tube or beaker, read the result here, then record it.',inf:'—'});
 askMode();
