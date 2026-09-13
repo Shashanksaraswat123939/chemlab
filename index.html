@@ -309,19 +309,19 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 /* ---------- the picture on the lab wall ----------
    It hangs behind the apparatus and takes no pointer events, so it can never
    get in the way of a drag; only its close button is clickable. */
-.portrait{position:absolute;right:26px;top:210px;width:142px;margin:0;z-index:0;pointer-events:none;
+.portrait{position:absolute;right:26px;top:210px;width:142px;margin:0;pointer-events:none;
   padding:9px;background:linear-gradient(160deg,#8a6a43,#6b5133);border-radius:5px;
   box-shadow:0 14px 28px rgba(16,24,40,.32),inset 0 0 0 1px rgba(255,255,255,.18);
   transition:opacity .3s,transform .3s}
 .portrait:before{content:"";position:absolute;left:50%;top:-16px;width:2px;height:16px;background:rgba(80,60,40,.75)}
 .portrait img{display:block;width:100%;height:auto;border-radius:2px;border:1px solid rgba(0,0,0,.35)}
 .portrait[hidden]{display:none}
-.portrait .pt-x{position:absolute;top:-10px;right:-10px;pointer-events:auto;width:24px;height:24px;padding:0;
+.portrait .pt-x{position:absolute;top:-10px;right:-10px;z-index:6;pointer-events:auto;width:24px;height:24px;padding:0;
   border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:50%;
   box-shadow:0 2px 10px rgba(0,0,0,.35);display:grid;place-items:center;transition:.15s}
 .portrait .pt-x:hover{background:var(--bad);color:#fff;border-color:var(--bad);transform:scale(1.1)}
 .portrait .pt-x .ic{width:12px;height:12px;stroke-width:2.4}
-.pt-show{position:absolute;right:26px;top:210px;z-index:2;font-size:11.5px;padding:5px 11px;border-radius:999px;
+.pt-show{position:absolute;right:26px;top:210px;z-index:6;font-size:11.5px;padding:5px 11px;border-radius:999px;
   background:var(--panel);border:1px dashed var(--line);color:var(--muted);opacity:.75}
 .pt-show:hover{opacity:1;border-style:solid}
 @container bench (max-width:470px){.portrait,.pt-show{display:none}}
@@ -629,7 +629,7 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
     <div class="bench-main" id="benchMain">
       <div class="stand">
         <div class="clamp"></div>
-        <div class="tube-wrap vessel dropzone" id="tubeWrap" data-item="tube" data-drop="tube" tabindex="0" role="button" aria-label="Test tube — press Enter for what you can do with it" title="Test tube — drag to the burner, beaker or sink">
+        <div class="tube-wrap vessel dropzone" id="tubeWrap" data-item="tube" data-drop="tube" tabindex="0" role="button" aria-label="Test tube — press Enter for what you can do with it" title="Test tube — drag it on to the burner to heat it, into the sink to wash it, or on to the beaker to pour">
           <svg viewBox="0 0 140 420" id="tubeSvg" aria-hidden="true">
             <defs>
               <clipPath id="tclip"><path d="M40 28 H100 V330 A30 30 0 0 1 40 330 Z"/></clipPath>
@@ -658,7 +658,7 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
         </div>
       </div>
 
-      <div class="beaker-wrap vessel dropzone" id="beakerWrap" data-item="beaker" data-drop="beaker" tabindex="0" role="button" aria-label="Beaker — press Enter for what you can do with it" title="Beaker — drag reagents into it, or pour the test tube into it">
+      <div class="beaker-wrap vessel dropzone" id="beakerWrap" data-item="beaker" data-drop="beaker" tabindex="0" role="button" aria-label="Beaker — press Enter for what you can do with it" title="Beaker — drag reagents in, drag it on to the burner to heat it, or into the sink to wash it">
         <svg viewBox="0 0 160 190" id="beakerSvg" aria-hidden="true">
           <defs><clipPath id="bclip"><path d="M22 36 H138 V152 A8 8 0 0 1 130 160 H30 A8 8 0 0 1 22 152 Z"/></clipPath></defs>
           <g class="gas"></g>
@@ -1499,11 +1499,13 @@ function renderContents(){
   // tools you have used are objects on the bench now, not chips in this bar
   const [oid,ov]=other,n=ov.st.items.length;
   const bar=$('#contentsBar');
+  // Heating and washing are the drag gestures: vessel on to the burner, vessel
+  // into the sink. Both vessels say so in their tooltip and in clickItem's toast.
   bar.innerHTML=`<div class="chips">${h}</div><div class="tools">`
     +`<button class="switch">${ov.Name}: ${n?n+' added':'empty'}</button>`
-    +`<button id="btnHeat"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-flame"/></svg>Heat</button>`
-    +`<button id="btnWash"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-drop"/></svg>Wash</button></div>`;
-  $('#btnHeat').onclick=()=>heat(active); $('#btnWash').onclick=()=>wash(active);
+    +`<button id="btnReset" title="Clear the bench, the notebook and every saved setting">`
+    +`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-refresh"/></svg>Reset all</button></div>`;
+  $('#btnReset').onclick=resetAll;
   bar.querySelector('.switch').onclick=()=>refresh(oid);
 }
 
@@ -1912,6 +1914,30 @@ function handleDrop(id,zone){
     if(VESSELS[id]) return wash(id);
     toast('Drop the test tube or beaker here to wash it.');
   }
+}
+// Reset all: every piece of state the app owns, in one place, so nothing can be
+// left behind. Each line below is the single owner of that state elsewhere too.
+function resetAll(){
+  if(!confirm('Reset everything?\n\nThis clears both vessels, the tools on the bench, the notebook, the rough notes, the panel widths, and every saved setting. A fresh salt is drawn.')) return;
+  try{ localStorage.removeItem('chemlab'); }catch(e){}
+  notebook=[]; tools={}; done=new Set(); reported=''; selectedTest=null; lastEntry=null;
+  for(const v of Object.values(VESSELS)){ v.st=freshState(); v.pptKey=''; v.gasKey=''; v.sfxKey=undefined; v.busy=false; }
+  cols={L:COL_DEF.L,R:COL_DEF.R}; folded={L:false,R:false};
+  showPortrait=true; theme='light'; mode='learn'; pool=new Set(SA1_IDX);
+  const r=$('#roughText'); if(r) r.value='';
+  active='tube';
+  salt=drawSalt(salt);
+  applyTheme(); applyPortrait(); applyCols(); applySettings();
+  saltQuery=''; const sq=$('#saltSearch'); if(sq) sq.value='';
+  renderSaltList(); roughCount(); renderDish(); renderShelf(currentCat); renderBenchTools();
+  selectTest(null); renderCompareSheet(); renderNotebook(); renderProgress();
+  refresh('beaker',true); refresh('tube');
+  $('#verdict').className='verdict'; $('#evidBox').innerHTML='';
+  hidePop();
+  showObs({test:'Reset',sec:'',exp:'Everything is cleared and a fresh unknown salt is given.',
+    obs:'Start with the physical examination, then the anion tests, then the cation groups.',inf:'—'});
+  save();
+  toast('Everything reset. A fresh salt has been drawn.');
 }
 function setSalt(s,clearNb){
   salt=s;
