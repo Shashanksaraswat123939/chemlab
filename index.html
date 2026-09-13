@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="light dark">
+<meta name="color-scheme" content="light">
 <meta name="description" content="Qualitative analysis of a simple salt — a drag-and-drop lab for the CBSE Class XI practical.">
 <title>ChemLab · Qualitative Salt Analysis (CBSE XI)</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='l' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%2360a5fa'/%3E%3Cstop offset='1' stop-color='%232563eb'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230f172a'/%3E%3Cpath d='M25 10h14v5h-3v17.5l10.5 18A5 5 0 0 1 42 58H22a5 5 0 0 1-4.5-7.5L28 32.5V15h-3z' fill='%23e2e8f0'/%3E%3Cpath d='M23.2 42h17.6l5.7 8.5A5 5 0 0 1 42 58H22a5 5 0 0 1-4.5-7.5z' fill='url(%23l)'/%3E%3Ccircle cx='28' cy='50' r='2.6' fill='%23bfdbfe'/%3E%3Ccircle cx='36' cy='47' r='1.8' fill='%23bfdbfe'/%3E%3Ccircle cx='33' cy='53' r='1.4' fill='%23bfdbfe'/%3E%3C/svg%3E">
@@ -23,6 +23,8 @@
   --glass-line:#64748b;--glass-fill:#f8fafc;--metal:#52525b;--metal2:#3f3f46;
   --sink1:#e2e8f0;--sink2:#cbd5e1;--sink-line:#94a3b8;--sink-ink:#334155;--sign-bg:rgba(255,255,255,.94);
   --bad-soft:#fee2e2;--paper:#fffdf7;--mark:#fde047;--mine:#fff7db;
+  --sb:#c6cedb;--sb-hover:#98a4b6;
+  color-scheme:light;
   --radius:16px;--shadow:0 6px 24px rgba(16,24,40,.08);
   --focus:0 0 0 3px var(--panel),0 0 0 5px var(--accent);
 }
@@ -37,11 +39,21 @@
   --glass-line:#93a7c2;--glass-fill:#22303f;--metal:#6b7687;--metal2:#525c6c;
   --sink1:#26313f;--sink2:#1b2431;--sink-line:#6b7687;--sink-ink:#cbd5e1;--sign-bg:rgba(22,30,43,.94);
   --bad-soft:#3a1a1a;--paper:#141c29;--mark:#6b5a12;--mine:#33280d;
+  --sb:#39445a;--sb-hover:#4d5b74;
   --shadow:0 6px 24px rgba(0,0,0,.45);
   color-scheme:dark;
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
+/* ---------- scrollbars ----------
+   Thin, rounded and inset, in both themes. The transparent border plus
+   background-clip is what gives the thumb its padding without a track. */
+*{scrollbar-width:thin;scrollbar-color:var(--sb) transparent}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--sb);background-clip:content-box;border:3px solid transparent;border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--sb-hover);background-clip:content-box}
+::-webkit-scrollbar-corner{background:transparent}
 html,body{margin:0;height:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,Roboto,'Helvetica Neue',sans-serif;
   background:var(--page);color:var(--ink);font-size:14.5px;
