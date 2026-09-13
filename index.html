@@ -378,6 +378,12 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 .guide .test.active .why{display:block}
 .guide .why b{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:3px}
 .guide .why code{background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-family:'Cascadia Mono',Consolas,monospace;font-size:11.5px}
+/* the rows you write against without carrying the test out */
+.guide .notperf{margin:9px 0 2px;background:var(--warn-soft);border:1px solid var(--warn);border-left:3px solid var(--warn);
+  border-radius:8px;padding:9px 11px;font-size:12.5px;line-height:1.55;color:var(--warn)}
+.guide .notperf b{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.guide .notperf button{margin-top:8px;padding:5px 11px;font-size:12px;border-radius:8px;background:var(--surface);color:var(--warn);border-color:var(--warn)}
+.guide .notperf button:hover:not(:disabled){background:var(--warn);color:var(--surface);border-color:var(--warn)}
 .nb{padding:10px 14px}
 .nb table{width:100%;border-collapse:collapse;font-size:12.5px}
 .nb th,.nb td{border:1px solid var(--line);padding:7px;vertical-align:top;text-align:left}
@@ -962,14 +968,20 @@ const GUIDE=[
    why:'<code>Pb²⁺ + SO₄²⁻ → PbSO₄↓</code> white. Hot ammonium acetate then dissolves PbSO₄ as a soluble acetato-complex — a behaviour PbCO₃ and other white lead salts do not share, so it separates sulphate from them.'},
  ]},
  {sec:'III-A. Cation — group analysis',tests:[
-  {id:'g0',name:'Group 0 (NH₄⁺) — NaOH, warm',steps:['A pinch of salt + dil. NaOH in the test tube.','Heat the tube.','Show a moist red litmus paper at the mouth.'],needs:['salt','NaOH','heat','redLitmus'],sim:{items:['salt','NaOH'],heated:true,probe:'redLitmus'},
+  {id:'g0',name:'1. Group 0 (NH₄⁺) — NaOH, warm',steps:['A pinch of salt + dil. NaOH in the test tube.','Heat the tube.','Show a moist red litmus paper at the mouth.'],needs:['salt','NaOH','heat','redLitmus'],sim:{items:['salt','NaOH'],heated:true,probe:'redLitmus'},
    why:'Ammonium is Group 0 — it has no sulphide or hydroxide stage, it is caught by a stronger base pushing ammonia out: <code>NH₄⁺ + OH⁻ → NH₃↑ + H₂O</code>. The moist red litmus turning blue proves the gas is alkaline, i.e. ammonia.'},
-  {id:'g1',name:'Group I (Pb²⁺) — dil. HCl',steps:['Take the salt solution in the test tube.','Add dil. HCl.'],needs:['saltSoln','dilHCl'],sim:{items:['saltSoln','dilHCl']},
+  {id:'g1',name:'2. Group I (Pb²⁺) — dil. HCl',steps:['Take the salt solution in the test tube.','Add dil. HCl.'],needs:['saltSoln','dilHCl'],sim:{items:['saltSoln','dilHCl']},
    why:'Group I is defined by chlorides insoluble in cold dilute acid. <code>Pb²⁺ + 2Cl⁻ → PbCl₂↓</code> white — and it dissolves in hot water, which distinguishes it from AgCl and Hg₂Cl₂.'},
-  {id:'g2',name:'Group II (Cu²⁺) — dil. HCl + (NH₄)₂S',steps:['Salt solution + dil. HCl.','Add ammonium sulphide solution.'],needs:['saltSoln','dilHCl','NH4_2S'],sim:{items:['saltSoln','dilHCl','NH4_2S']},
+  {id:'g2',name:'3. Group II (Cu²⁺) — dil. HCl + (NH₄)₂S',steps:['Salt solution + dil. HCl.','Add ammonium sulphide solution.'],needs:['saltSoln','dilHCl','NH4_2S'],sim:{items:['saltSoln','dilHCl','NH4_2S']},
    why:'The dil. HCl is there to suppress the ionisation of H₂S, keeping [S²⁻] low. Only the very insoluble Group II sulphides can precipitate at that low concentration — <code>Cu²⁺ + S²⁻ → CuS↓</code> black. Group IV sulphides need an alkaline medium and stay in solution here.'},
-  {id:'g3',name:'Group III (Al³⁺) — NH₄Cl, then excess NH₄OH',steps:['Salt solution + solid NH₄Cl; boil, then cool.','Add NH₄OH in excess.'],needs:['saltSoln','NH4Cl','heat','NH4OH'],sim:{items:['saltSoln','NH4Cl','NH4OH'],heated:true},
+  {id:'g3',name:'4. Group III (Al³⁺) — NH₄Cl, then excess NH₄OH',steps:['Salt solution + solid NH₄Cl; boil, then cool.','Add NH₄OH in excess.'],needs:['saltSoln','NH4Cl','heat','NH4OH'],sim:{items:['saltSoln','NH4Cl','NH4OH'],heated:true},
    why:'The NH₄Cl is a common-ion buffer: it pushes NH₄OH’s equilibrium back so [OH⁻] stays low. Only the least soluble hydroxides come down — <code>Al³⁺ + 3OH⁻ → Al(OH)₃↓</code>, a white gelatinous mass. Without the NH₄Cl the later groups would precipitate here too.'},
+  {id:'g4',name:'5. Group IV (Zn²⁺, Mn²⁺, Ni²⁺, Co²⁺) — NH₄Cl + NH₄OH + (NH₄)₂S',steps:['Salt solution + solid NH₄Cl; boil, then cool.','Add NH₄OH until the solution is alkaline.','Add ammonium sulphide solution.'],needs:['saltSoln','NH4Cl','NH4OH','NH4_2S'],sim:{items:['saltSoln','NH4OH','NH4_2S']},skipIfZero:true,
+   why:'The same sulphide as Group II, in the opposite medium. Alkali removes H⁺, so H₂S ionises freely and [S²⁻] is now high — high enough for the more soluble sulphides that the acid medium of Group II deliberately kept in solution: <code>Zn²⁺ → ZnS↓</code> dirty white, <code>Mn²⁺ → MnS↓</code> buff, Ni²⁺ and Co²⁺ black.'},
+  {id:'g5',name:'6. Group V (Ba²⁺, Sr²⁺, Ca²⁺) — NH₄Cl + NH₄OH + (NH₄)₂CO₃',steps:['Salt solution + solid NH₄Cl; boil, then cool.','Add NH₄OH until alkaline.','Add ammonium carbonate solution.'],needs:['saltSoln','NH4Cl','NH4OH','NH4_2CO3'],sim:{items:['saltSoln','NH4OH','NH4_2CO3']},skipIfZero:true,
+   why:'The alkaline earths are caught as carbonates: <code>Ba²⁺, Sr²⁺, Ca²⁺ + CO₃²⁻ → white ↓</code>. The NH₄Cl matters again — the ammonium ion it supplies keeps magnesium in solution as the soluble MgCl₂, so Mg²⁺ is left for the next group instead of coming down here.'},
+  {id:'g6',name:'7. Group VI (Mg²⁺) — NH₄OH + Na₂HPO₄',steps:['Salt solution + NH₄OH.','Add disodium hydrogen phosphate solution and scratch the side of the tube.'],needs:['saltSoln','NH4OH','Na2HPO4'],sim:{items:['saltSoln','NH4OH','Na2HPO4']},skipIfZero:true,
+   why:'Whatever has survived every earlier group is magnesium, and it is thrown down as a double salt: <code>Mg²⁺ + NH₄⁺ + HPO₄²⁻ → MgNH₄PO₄↓</code>, white and crystalline. Scratching the glass gives the crystals somewhere to start, which is why the tube is scratched.'},
  ]},
  {sec:'III-B. Cation — confirmatory tests',tests:[
   {id:'nh4a',name:'NH₄⁺ 1 — NaOH, warm + rod in conc. HCl',steps:['A pinch of salt + dil. NaOH; heat.','Show a glass rod dipped in conc. HCl at the mouth of the tube.'],needs:['salt','NaOH','heat','rodHCl'],sim:{items:['salt','NaOH'],heated:true,probe:'rodHCl'},
@@ -1645,7 +1657,33 @@ function renderGuide(){
      `<div class="test${selectedTest===t?' active':''}${done.has(t.id)?' done':''}" data-si="${si}" data-ti="${ti}" tabindex="0" role="button" aria-expanded="${selectedTest===t}">${esc(t.name)}`
      +`<ol class="steps">${t.steps.map(x=>`<li>${x}</li>`).join('')}</ol>`
      +((mode==='learn'&&t.why)?`<div class="why"><b>Why it works</b>${t.why}</div>`:'')
+     +((selectedTest===t&&t.skipIfZero&&zeroFound())?notPerformedBox(t):'')
      +(selectedTest===t?cmpTable(t):'')+`</div>`).join('')}</details>`).join('');
+}
+const zeroFound=()=>notebook.some(e=>/presence of group 0/i.test(e.inf||''));
+function notPerformedBox(t){
+  const already=notebook.some(e=>e.test===t.name);
+  // Test mode states the observation and the rule, and leaves the conclusion where
+  // it belongs -- with the student.
+  return '<div class="notperf"><b>Write it down, do not perform it</b>'
+    +(mode==='learn'
+      ?'Your group 0 test has already given ammonia, so the cation is NH₄⁺ and the salt is settled. Groups'
+      :'Your group 0 test gave ammonia. Where the cation is group zero, groups')
+    +' IV, V and VI are not carried out — but the record still wants the row against them.'
+    +'<button type="button" data-np="'+t.id+'"'+(already?' disabled':'')+'>'
+    +(already?'Already written in':'Write it into the notebook')+'</button></div>';
+}
+function recordNotPerformed(id){
+  const t=GUIDE.flatMap(s=>s.tests).find(x=>x.id===id); if(!t) return;
+  if(notebook.some(e=>e.test===t.name)){ toast('That row is already in the notebook.'); return; }
+  notebook.push({sec:SEC_OF.get(t),test:t.name,
+    exp:t.steps.map(x=>x.replace(/<[^>]+>/g,'')).join(' '),
+    obs:'Not performed.',
+    inf:'The cation is already identified as group zero (NH₄⁺), so groups IV, V and VI are not tested.',
+    smell:null});
+  done.add(t.id);
+  renderNotebook(); renderProgress(); renderGuide(); save();
+  toast('Written into the notebook as not performed.');
 }
 function selectTest(t){
   selectedTest=t;
@@ -2042,7 +2080,11 @@ $('#btnRoughClear').onclick=()=>{
   $('#roughText').value=''; roughCount(); save();
 };
 function toggleGuideTest(el){ const test=GUIDE[el.dataset.si].tests[el.dataset.ti]; selectTest(selectedTest===test?null:test); }
-$('#guide').addEventListener('click',e=>{ const t=e.target.closest('.test'); if(t) toggleGuideTest(t); });
+$('#guide').addEventListener('click',e=>{
+  const np=e.target.closest('[data-np]');
+  if(np){ e.stopPropagation(); if(!np.disabled) recordNotPerformed(np.dataset.np); return; }
+  const t=e.target.closest('.test'); if(t) toggleGuideTest(t);
+});
 $('#guide').addEventListener('keydown',e=>{
   const t=e.target.closest('.test'); if(!t||(e.key!=='Enter'&&e.key!==' ')) return;
   e.preventDefault(); toggleGuideTest(t);

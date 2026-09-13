@@ -51,3 +51,27 @@ for(const s of api.SALTS){
   }
 }
 console.log(`all ${api.SALTS.length} salts x every test x heated/cold: ${crash} problems.`);
+
+/* The cation preliminary tests are numbered as the record numbers them, and the
+   last three are the ones written down rather than carried out when the cation
+   turns out to be group zero. */
+{
+  const cat=api.GUIDE.find(s=>/III-A/.test(s.sec));
+  let bad=0;
+  const want=['1. Group 0','2. Group I','3. Group II','4. Group III','5. Group IV','6. Group V','7. Group VI'];
+  if(!cat){ console.log('FAIL no cation group-analysis section'); bad++; }
+  else {
+    if(cat.tests.length!==7){ console.log('FAIL cation preliminary tests: '+cat.tests.length+', the record has 7'); bad++; }
+    cat.tests.forEach((t,i)=>{ if(want[i]&&t.name.indexOf(want[i])!==0){
+      console.log('FAIL test '+(i+1)+' is "'+t.name+'", expected to start "'+want[i]+'"'); bad++; } });
+    const skip=cat.tests.filter(t=>t.skipIfZero).map(t=>t.id).join(',');
+    if(skip!=='g4,g5,g6'){ console.log('FAIL written-not-performed set is ['+skip+'], expected g4,g5,g6'); bad++; }
+    // each of the three has to be a real test too, or the student could never do it
+    cat.tests.filter(t=>t.skipIfZero).forEach(t=>{
+      api.SA1.forEach(s=>{ const r=api.simFor(t,s);
+        if(!r.obs||r.obs==='—'||!r.inf||r.inf==='—'){ console.log('FAIL '+t.id+' gives nothing for '+s.f); bad++; } });
+    });
+  }
+  console.log('\ncation preliminary tests: '+(bad?bad+' PROBLEMS':'1-7 numbered, 5-7 writable without performing, all three still work'));
+  if(bad) process.exitCode=1;
+}
