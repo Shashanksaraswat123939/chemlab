@@ -1,6 +1,6 @@
 # ChemLab — Qualitative Salt Analysis
 
-**Live:** https://chemlab-teamblackwings-projects-cb032a19.vercel.app
+**Live:** see the Vercel project for this repo
 
 > The Vercel project was created with Deployment Protection on, so the link asks
 > for a Vercel login. To open it to everyone:
@@ -66,7 +66,7 @@ practical records.
 The Vercel token available here could deploy files but not link a git repo, so
 the Vercel project builds by fetching `index.html` from this repository:
 
-    curl -sfL https://raw.githubusercontent.com/Shashanksaraswat123939/chemlab/main/index.html -o public/index.html
+    curl -sfL <raw URL of index.html on main> -o public/index.html
 
 The deployed artefact is therefore byte-identical to `index.html` on `main`, and a
 redeploy picks up whatever is on `main`. To replace this with a normal git
