@@ -157,11 +157,11 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 /* Pin each item to its own column. Without this, hiding the shelf takes it out
    of the grid entirely and auto-placement slides everything one column left,
    dropping the bench into the 14px divider track. */
-#shelfPanel{grid-column:1}
+#shelfPanel{grid-column:1;container:shelf/inline-size}
 #splitL{grid-column:2}
 .bench{grid-column:3}
 #splitR{grid-column:4}
-#sidePanel{grid-column:5}
+#sidePanel{grid-column:5;container:side/inline-size}
 /* Drag a splitter to give a panel more room; double-click one to put it back.
    Arrow keys move it too, so it is not a mouse-only control. */
 .split{position:relative;cursor:col-resize;touch-action:none;display:grid;place-items:center;z-index:6}
@@ -179,14 +179,12 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 .split.folded{cursor:default}
 .split.folded:before{opacity:.3;height:26px}
 .panel.is-hidden{display:none}
-@media (max-width:1100px){
-  .panel.is-hidden{display:flex}   /* the stacked layout has no room to fold anything away */
-}
 .panel{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;min-height:0}
 .panel-h{padding:12px 14px;border-bottom:1px solid var(--line);font-weight:700;font-size:13px;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
 /* ---------- shelf ---------- */
-.tabs{display:flex;gap:4px;padding:8px 10px;border-bottom:1px solid var(--line)}
-.tabs button{flex:1;padding:7px 4px;font-size:12px;border-radius:8px;border-color:transparent;background:var(--chip)}
+.tabs{display:flex;gap:4px;padding:8px 10px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{display:block;text-align:center;flex:1 1 0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:7px 4px;font-size:12px;border-radius:8px;border-color:transparent;background:var(--chip)}
 .tabs button.active{background:var(--accent);color:var(--surface)}
 .tray{padding:10px 12px;border-bottom:1px dashed var(--accent-line);background:var(--accent-bg)}
 .tray.hidden{display:none}
@@ -203,7 +201,7 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 .item.hl{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.22);background:var(--accent-bg)}
 .item.hl:after{content:"needed";font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--accent)}
 /* ---------- bench ---------- */
-.bench{container-type:inline-size;position:relative;--ap:1;background:
+.bench{container:bench/inline-size;position:relative;--ap:1;background:
   radial-gradient(1200px 400px at 50% 120%,var(--bench-gloss),transparent),
   linear-gradient(180deg,var(--bench-air) 0%,var(--bench-air) 62%,var(--wood1) 62%,var(--wood2) 100%);}
 .bench-top{display:flex;gap:14px;padding:14px 18px 0;position:relative;z-index:2}
@@ -219,10 +217,10 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
    it with the splitter keeps the apparatus in proportion instead of colliding.
    The four pieces measure 670px side by side, plus 40px of padding, so full size
    holds down to about 720px and only then starts stepping down. */
-@container (max-width:720px){.bench-main{--ap:.88}}
-@container (max-width:620px){.bench-main{--ap:.76}}
-@container (max-width:520px){.bench-main{--ap:.64}}
-@container (max-width:430px){.bench-main{--ap:.53}}
+@container bench (max-width:720px){.bench-main{--ap:.88}}
+@container bench (max-width:620px){.bench-main{--ap:.76}}
+@container bench (max-width:520px){.bench-main{--ap:.64}}
+@container bench (max-width:430px){.bench-main{--ap:.53}}
 .stand{position:relative;width:calc(190px*var(--ap));height:calc(400px*var(--ap));display:flex;justify-content:center}
 .stand:before{content:"";position:absolute;left:50%;bottom:0;width:calc(140px*var(--ap));height:calc(14px*var(--ap));margin-left:calc(-70px*var(--ap));background:var(--metal2);border-radius:6px;box-shadow:0 4px 8px rgba(0,0,0,.25)}
 .stand:after{content:"";position:absolute;left:50%;bottom:0;width:calc(8px*var(--ap));height:calc(340px*var(--ap));margin-left:calc(44px*var(--ap));background:var(--metal);border-radius:4px}
@@ -306,20 +304,20 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 .portrait:before{content:"";position:absolute;left:50%;top:-16px;width:2px;height:16px;background:rgba(80,60,40,.75)}
 .portrait img{display:block;width:100%;height:auto;border-radius:2px;border:1px solid rgba(0,0,0,.35)}
 .portrait[hidden]{display:none}
-.portrait .pt-x{position:absolute;top:-9px;right:-9px;pointer-events:auto;width:22px;height:22px;padding:0;
-  border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:50%;
-  box-shadow:0 2px 8px rgba(0,0,0,.3);display:grid;place-items:center;opacity:0;transition:opacity .2s}
-.portrait:hover .pt-x,.portrait .pt-x:focus-visible{opacity:1}
-.portrait .pt-x:hover{background:var(--bad);color:#fff;border-color:var(--bad)}
-.portrait .pt-x .ic{width:11px;height:11px}
+.portrait .pt-x{position:absolute;top:-10px;right:-10px;pointer-events:auto;width:24px;height:24px;padding:0;
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:50%;
+  box-shadow:0 2px 10px rgba(0,0,0,.35);display:grid;place-items:center;transition:.15s}
+.portrait .pt-x:hover{background:var(--bad);color:#fff;border-color:var(--bad);transform:scale(1.1)}
+.portrait .pt-x .ic{width:12px;height:12px;stroke-width:2.4}
 .pt-show{position:absolute;right:26px;top:210px;z-index:2;font-size:11.5px;padding:5px 11px;border-radius:999px;
   background:var(--panel);border:1px dashed var(--line);color:var(--muted);opacity:.75}
 .pt-show:hover{opacity:1;border-style:solid}
-@container (max-width:620px){.portrait,.pt-show{display:none}}
+@container bench (max-width:470px){.portrait,.pt-show{display:none}}
 /* ---------- side ---------- */
 .obs{padding:14px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--surface),var(--accent-bg))}
 .obs .head{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
 .badge{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent-ink);text-transform:uppercase;letter-spacing:.3px}
+.badge.nbc{margin-left:5px;font-size:10.5px;padding:2px 6px;letter-spacing:0}
 .badge.sec{background:var(--chip);color:var(--ink2);font-weight:600;text-transform:none;letter-spacing:0}
 .obs .row{display:grid;grid-template-columns:92px 1fr;gap:8px;font-size:13.5px;line-height:1.5;margin:5px 0}
 .obs .row b{color:var(--muted);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.4px;padding-top:3px}
@@ -332,8 +330,10 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 .smell{display:inline-flex;align-items:center;gap:6px;background:var(--warn-soft);color:var(--warn);padding:4px 10px;border-radius:999px;font-size:12.5px;margin-top:6px;font-weight:600;border:1px solid var(--warn)}
 .obs .foot{display:flex;justify-content:flex-end;gap:8px;margin-top:10px;align-items:center}
 .obs .hintq{font-size:12px;color:var(--muted);margin-right:auto;line-height:1.4}
-.side-tabs{display:flex;border-bottom:1px solid var(--line)}
-.side-tabs button{flex:1;border:0;border-radius:0;background:transparent;padding:11px 6px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;font-size:13.5px}
+.side-tabs{display:flex;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.side-tabs::-webkit-scrollbar{display:none}
+.side-tabs button{display:block;text-align:center;flex:1 1 0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:0;border-radius:0;background:transparent;
+  padding:11px 4px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;font-size:13px}
 .side-tabs button:hover:not(:disabled){box-shadow:none;color:var(--ink);background:var(--hover)}
 .side-tabs button.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--accent-bg)}
 .side-tabs button:focus-visible{box-shadow:inset 0 0 0 2px var(--accent);border-radius:0}
@@ -478,14 +478,44 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 @media (max-width:1280px){
   :root{--colL:264px;--colR:350px}
 }
-@media (max-width:1100px){
+@media (max-width:1120px){          /* landscape tablet: three columns, tighter */
+  :root{--colL:210px;--colR:300px}
+}
+/* ---- everything below reacts to the panel's own width, not the window's ---- */
+@container shelf (max-width:250px){
+  .tw{display:none}                 /* a tab label sheds its second word when tight */
+  .tabs button{font-size:10.5px;padding:7px 2px;letter-spacing:-.1px}
+  .items{grid-template-columns:repeat(2,1fr)}
+}
+@container side (max-width:330px){
+  .side-tabs button{font-size:12px;padding:11px 3px}
+}
+@container bench (max-width:700px){          /* the picture shrinks before the cards do */
+  .portrait{width:112px;right:16px;top:180px}
+  .pt-show{right:16px;top:180px}
+}
+@container bench (max-width:760px){
+  /* the three reagent cards get compact, and the row scrolls rather than clipping */
+  .bench-top{gap:8px;padding:10px 12px 0;overflow-x:auto;scrollbar-width:none}
+  .bench-top::-webkit-scrollbar{display:none}
+  .bench-card{flex:0 0 auto;padding:8px 9px;gap:7px}
+  .bench-card svg{width:36px;height:36px}
+  .bench-card b{font-size:12px}
+  .bench-card small{display:none}
+  .bench-card .mini{margin-top:5px;gap:4px}
+  .bench-card .mini button{padding:4px 6px;font-size:0}          /* icon only */
+  .bench-card .mini button .ic{width:14px;height:14px;font-size:12px}
+}
+@media (max-width:900px){           /* portrait tablet and below: stack */
   header{height:auto;flex-wrap:wrap;gap:10px;padding:10px 14px}
   .salt-tag{margin-left:0}
   main{grid-template-columns:1fr;height:auto;gap:14px}
   #shelfPanel,#splitL,.bench,#splitR,#sidePanel{grid-column:auto}
   .split{display:none}
+  .panel.is-hidden{display:flex}    /* nothing folds away once stacked */
   .bench{min-height:720px}
   .items{grid-template-columns:repeat(5,1fr)}
+  .bench-card small{display:block}
   .side-body{max-height:none;overflow:visible}
 }
 @media (max-width:700px){
@@ -550,7 +580,7 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
     <div class="panel-h"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-shelf"/></svg>Reagent shelf <span style="margin-left:auto;font-weight:500;text-transform:none;letter-spacing:0">drag, or click to add</span></div>
     <div class="tray hidden" id="tray"><h4 id="trayTitle">Needed for this test</h4><div class="chips" id="trayChips"></div></div>
     <div class="tabs" id="shelfTabs" role="tablist" aria-label="Shelf category">
-      <button data-cat="acid" class="active" role="tab" aria-selected="true">Acids &amp; bases</button>
+      <button data-cat="acid" class="active" role="tab" aria-selected="true">Acids<span class="tw"> &amp; bases</span></button>
       <button data-cat="reagent" role="tab" aria-selected="false">Reagents</button>
       <button data-cat="tool" role="tab" aria-selected="false">Apparatus</button>
     </div>
@@ -688,7 +718,7 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
     <div class="side-tabs" role="tablist" aria-label="Side panel">
       <button class="active" data-side="guide" role="tab" aria-selected="true">Procedure</button
       ><button data-side="cmp" role="tab" aria-selected="false">Compare</button
-      ><button data-side="nb" role="tab" aria-selected="false">Notebook <span id="nbCount" class="badge" style="margin-left:4px">0</span></button
+      ><button data-side="nb" role="tab" aria-selected="false">Notebook <span id="nbCount" class="badge nbc">0</span></button
       ><button data-side="rough" role="tab" aria-selected="false">Rough</button>
     </div>
     <div class="side-body">
@@ -1617,7 +1647,7 @@ function selectTest(t){
   renderShelf(currentCat);
 }
 function renderNotebook(){
-  $('#nbCount').textContent=notebook.length;
+  const nc=$('#nbCount'); nc.textContent=notebook.length; nc.hidden=!notebook.length;
   const nb=$('#nb');
   if(!notebook.length){ nb.innerHTML='<div class="empty">Nothing recorded yet.<br>Perform a test, then press <b>Record in notebook</b> under the observation.</div>'; return; }
   let html='<table><tr><th style="width:26px">#</th><th>Experiment</th><th>Observation</th><th class="inf-col">Inference</th><th><span class="sr">Remove</span></th></tr>',lastSec=null;
