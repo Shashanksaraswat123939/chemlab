@@ -1,5 +1,5 @@
 const fs=require('fs');
-const src=fs.readFileSync(require('path').join(__dirname,'..','index.html'),'utf8').match(/<script>([\s\S]*)<\/script>/)[1];
+const src=fs.readFileSync(require('path').join(__dirname,'..','index.html'),'utf8').match(/<script>([\s\S]*?)<\/script>/)[1];
 const noop=()=>{};
 const el=new Proxy(function(){},{get(t,k){if(k==='length')return 0;if(k==='style'||k==='classList'||k==='dataset')return el;
  if(k===Symbol.iterator)return [][Symbol.iterator].bind([]);if(k==='getBoundingClientRect')return()=>({left:0,top:0,width:100,height:100});
