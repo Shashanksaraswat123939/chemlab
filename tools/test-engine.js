@@ -1,7 +1,7 @@
 // Runs the page's own rule engine in Node against a stubbed DOM, so every test in
 // the procedure can be checked for all three SA1 salts without a browser.
 const fs=require('fs');
-const src=fs.readFileSync(require('path').join(__dirname,'..','index.html'),'utf8').match(/<script>([\s\S]*)<\/script>/)[1];
+const src=fs.readFileSync(require('path').join(__dirname,'..','index.html'),'utf8').match(/<script>([\s\S]*?)<\/script>/)[1];
 
 const noop=()=>{};
 const el=new Proxy(function(){},{
