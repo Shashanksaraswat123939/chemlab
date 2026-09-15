@@ -258,6 +258,14 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 .beaker-wrap{position:relative;width:calc(170px*var(--ap));margin-bottom:0}
 .beaker-wrap svg{width:calc(170px*var(--ap));height:calc(190px*var(--ap));display:block;overflow:visible}
 .vlabel{position:absolute;left:50%;transform:translateX(-50%);bottom:-26px;text-align:center;font-size:11.5px;font-weight:600;color:var(--ink);white-space:nowrap;background:var(--sign-bg);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.mouth{position:absolute;pointer-events:none;z-index:4;border-radius:12px;transition:.15s}
+body.dragging .mouth{pointer-events:auto}
+/* while a drag is in the air the mouth shows itself, and lights up under the pointer */
+body.dragging .mouth::after{content:"at the mouth";position:absolute;inset:0;
+  display:grid;place-items:center;font-size:10px;font-weight:700;letter-spacing:.2px;
+  color:var(--accent-ink);background:rgba(37,99,235,.10);
+  border:1.5px dashed var(--accent-line);border-radius:12px}
+body.dragging .mouth.over::after{background:rgba(37,99,235,.22);border-style:solid;border-color:var(--accent)}
 .dropzone{transition:.15s}
 .dropzone.over{outline:3px dashed var(--accent);outline-offset:8px;border-radius:14px;background:rgba(37,99,235,.09);animation:pulseDrop .9s ease-in-out infinite}
 @keyframes pulseDrop{0%,100%{outline-offset:8px}50%{outline-offset:12px}}
@@ -310,7 +318,16 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
   user-select:none;touch-action:none;max-width:230px;transition:box-shadow .15s,border-color .15s}
 .benchtool:hover{box-shadow:0 10px 26px rgba(16,24,40,.28);border-color:var(--accent);border-left-color:var(--accent)}
 .benchtool:focus-visible{box-shadow:var(--focus)}
-.benchtool svg{width:26px;height:34px;flex:0 0 auto}
+.benchtool > svg{width:26px;height:34px;flex:0 0 auto}
+/* A rod standing on the bench reads as the rod itself, not as a label with a
+   picture beside it: the glass upright, its name small underneath. */
+.benchtool.bt-rod{flex-direction:column;gap:2px;padding:9px 9px 7px;max-width:96px;
+  text-align:center;border-left-width:1px}
+.benchtool.bt-rod > svg{width:34px;height:72px}
+.benchtool.bt-rod .bt-lbl{font-size:10px;line-height:1.25}
+.benchtool.bt-rod .bt-lbl i{font-size:9.5px;white-space:normal}
+.benchtool.bt-rod .bt-x{position:absolute;top:-7px;right:-7px;background:var(--surface);
+  border:1px solid var(--line)}
 .benchtool .bt-lbl{font-size:11.5px;line-height:1.3;font-weight:700;min-width:0}
 .benchtool .bt-lbl i{display:block;font-style:normal;font-weight:400;color:var(--muted);font-size:10.5px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -631,6 +648,8 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
       <div class="stand">
         <div class="clamp"></div>
         <div class="tube-wrap vessel dropzone" id="tubeWrap" data-item="tube" data-drop="tube" tabindex="0" role="button" aria-label="Test tube — press Enter for what you can do with it" title="Test tube — drag it on to the burner to heat it, into the sink to wash it, or on to the beaker to pour">
+          <div class="mouth" data-drop="tubeMouth" style="left:20%;right:20%;top:0;height:11%"
+               aria-label="Mouth of the test tube — hold a rod or a paper here"></div>
           <svg viewBox="0 0 140 420" id="tubeSvg" aria-hidden="true">
             <defs>
               <clipPath id="tclip"><path d="M40 28 H100 V330 A30 30 0 0 1 40 330 Z"/></clipPath>
@@ -660,6 +679,8 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
       </div>
 
       <div class="beaker-wrap vessel dropzone" id="beakerWrap" data-item="beaker" data-drop="beaker" tabindex="0" role="button" aria-label="Beaker — press Enter for what you can do with it" title="Beaker — drag reagents in, drag it on to the burner to heat it, or into the sink to wash it">
+        <div class="mouth" data-drop="beakerMouth" style="left:12%;right:12%;top:0;height:23%"
+             aria-label="Mouth of the beaker — hold a rod or a paper here"></div>
         <svg viewBox="0 0 160 190" id="beakerSvg" aria-hidden="true">
           <defs><clipPath id="bclip"><path d="M22 36 H138 V152 A8 8 0 0 1 130 160 H30 A8 8 0 0 1 22 152 Z"/></clipPath></defs>
           <g class="gas"></g>
@@ -1528,7 +1549,7 @@ function renderContents(){
 /* ---- tools left standing on the bench ---- */
 const SHORT={rodDry:'Glass rod',rodHCl:'Rod · conc. HCl',rodNH4OH:'Rod · NH₄OH',filterPaper:'Filter paper',
              redLitmus:'Red litmus',blueLitmus:'Blue litmus',limeWater:'Lime water'};
-const onBench=id=>{ const t=tools[id]; return !!t&&(t.items.length>0||!!t.colour); };
+const onBench=id=>{ const t=tools[id]; return !!t&&(t.items.length>0||!!t.colour||!!t.out); };
 // dropped on a vessel, it comes to rest just beside that vessel
 function restingPlace(vid){
   const bm=$('#benchMain').getBoundingClientRect(),w=VESSELS[vid]?$(VESSELS[vid].wrap).getBoundingClientRect():null;
@@ -1547,9 +1568,9 @@ function renderBenchTools(){
     if(!onBench(id)) continue;
     if(!t.pos) t.pos=restingPlace(active);
     const it=ITEM[id]; if(!it) continue;
-    h+=`<div class="benchtool" data-item="${id}" tabindex="0" role="button" style="left:${Math.round(t.pos.x)}px;top:${Math.round(t.pos.y)}px"`
+    h+=`<div class="benchtool${ROD_ACTS.has(id)?' bt-rod':''}" data-item="${id}" tabindex="0" role="button" style="left:${Math.round(t.pos.x)}px;top:${Math.round(t.pos.y)}px"`
       +` aria-label="${esc(it.label)}${t.items.length?', carrying '+esc(describeLoad(t)):''}. Drag it to the flame, to a vessel, or anywhere on the bench."`
-      +` title="Drag it to the flame, to a vessel, or anywhere on the bench">${icon(it)}`
+      +` title="Drag it to the mouth of a vessel to hold it there, into a vessel to dip it, to the flame, or anywhere on the bench">${icon(it)}`
       +`<span class="bt-lbl">${esc(SHORT[id]||it.label)}${t.items.length?`<i>${esc(describeLoad(t))}</i>`:''}</span>`
       +`<button class="bt-x" data-wipe="${id}" title="Take a fresh clean one" aria-label="Take a fresh ${esc(it.label)}">`
       +`<svg class="ic" viewBox="0 0 24 24" style="width:10px;height:10px" aria-hidden="true"><use href="#i-x"/></svg></button></div>`;
@@ -1934,7 +1955,14 @@ function smellSalt(){
   const e={sec:PH,test:'Odour test',exp:'A pinch of salt is rubbed between the fingers with a drop of water',obs,inf,b:[obs.replace(/\.$/,'')],doneId:'odour',smell:nh||ac?obs.replace('.',''):null,recordable:true};
   showObs(e); popObs('#dishSvg',e);
 }
+const MOUTH_OF={tubeMouth:'tube',beakerMouth:'beaker'};
 function handleDrop(id,zone){
+  if(MOUTH_OF[zone]){
+    const v=MOUTH_OF[zone];
+    if(VESSELS[id]) return id===v?null:pour(id,v);
+    if(PROBES.has(id)) return probe(v,id);
+    return handleDrop(id,v);           // not something you hold at a mouth
+  }
   if(VESSELS[zone]){
     if(VESSELS[id]) return id===zone?null:pour(id,zone);
     // gas coming off → hold it at the mouth; otherwise dip it in
@@ -2021,6 +2049,7 @@ function moveGhost(){
 }
 function endDrag(cancel){
   if(!drag) return;
+  document.body.classList.remove('dragging');
   if(raf){ cancelAnimationFrame(raf); raf=0; }
   if(!drag.ghost){ if(!cancel) clickItem(drag.id); drag=null; return; }
   const {ghost,id}=drag; drag.target?.classList.remove('over');
@@ -2035,13 +2064,22 @@ function endDrag(cancel){
   if(target) return handleDrop(id,target.dataset.drop);
   // no drop zone under the pointer: a tool already on the bench is simply put
   // down there, so it stays where you left it instead of snapping back
-  if(onBench(id)) placeToolAt(id,dropX-ox,dropY-oy);
+  if(onBench(id)) return void placeToolAt(id,dropX-ox,dropY-oy);
+  // dropped on bare bench straight out of the cupboard: stand it there, clean,
+  // ready to be picked up again and taken to a vessel or to the flame
+  const it=ITEM[id];
+  if(it&&it.tool){
+    const t=T(id); t.pos={x:0,y:0};
+    if(placeToolAt(id,dropX-ox,dropY-oy)){ t.out=true; renderBenchTools(); renderShelf(currentCat); }
+    else delete tools[id];
+  }
 }
 function placeToolAt(id,clientX,clientY){
   const bm=$('#benchMain').getBoundingClientRect();
-  if(clientX<bm.left-40||clientX>bm.right+40||clientY<bm.top-40||clientY>bm.bottom+40) return;
+  if(clientX<bm.left-40||clientX>bm.right+40||clientY<bm.top-40||clientY>bm.bottom+40) return false;
   tools[id].pos={x:clientX-bm.left,y:clientY-bm.top};
   renderBenchTools();
+  return true;
 }
 document.addEventListener('pointerup',()=>endDrag(false));
 document.addEventListener('pointercancel',()=>endDrag(true));
@@ -2050,7 +2088,8 @@ function startGhost(){
   const sv=drag.el.querySelector('svg');
   g.innerHTML=VESSELS[drag.id]?vesselIcon(drag.id):(sv?sv.outerHTML:'');
   if(drag.id==='tube') g.style.width='44px';
-  document.body.appendChild(g); drag.ghost=g; drag.ox=g.offsetWidth/2; drag.oy=g.offsetHeight*.3;
+  document.body.appendChild(g); document.body.classList.add('dragging');
+  drag.ghost=g; drag.ox=g.offsetWidth/2; drag.oy=g.offsetHeight*.3;
   g.style.transform=`translate3d(${drag.x-drag.ox}px,${drag.y-drag.oy}px,0)`;
 }
 const ROD_ACTS=new Set(['rodDry','rodHCl','rodNH4OH']);
