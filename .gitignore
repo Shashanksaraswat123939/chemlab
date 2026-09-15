@@ -6,3 +6,6 @@ node_modules/
 Chem-Lab/
 *.docx
 .claude/
+
+# .env.local holds a VERCEL_OIDC_TOKEN written by the Vercel CLI
+.env*
