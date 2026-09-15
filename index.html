@@ -29,18 +29,21 @@
   --focus:0 0 0 3px var(--panel),0 0 0 5px var(--accent);
 }
 [data-theme="dark"]{
-  --surface:#18212f;--panel:#161e2b;--bg:#0b1220;
-  --ink:#e9eef7;--ink2:#c6d0e0;--muted:#9aa7bc;--line:#2b3648;
-  --chip:#212c3d;--hover:#1e2836;--field:#121a27;
-  --accent:#8ab0ff;--accent-soft:#1f2d4a;--accent-bg:#1a2438;--accent-line:#3a5183;--accent-ink:#bcd0ff;
-  --ok:#6ee7a8;--ok-soft:#13301f;--warn:#fbbf24;--warn-soft:#39290a;--bad:#fda4a4;
-  --page:linear-gradient(180deg,#0b1220,#0e1727);
-  --bench-air:#131c2a;--wood1:#4b3a29;--wood2:#3a2d20;--bench-gloss:rgba(255,255,255,.06);
-  --glass-line:#93a7c2;--glass-fill:#22303f;--metal:#6b7687;--metal2:#525c6c;
-  --sink1:#26313f;--sink2:#1b2431;--sink-line:#6b7687;--sink-ink:#cbd5e1;--sign-bg:rgba(22,30,43,.94);
-  --bad-soft:#3a1a1a;--paper:#141c29;--mark:#6b5a12;--mine:#33280d;
-  --sb:#39445a;--sb-hover:#4d5b74;
-  --shadow:0 6px 24px rgba(0,0,0,.45);
+  /* Neutral, not navy: near-black surfaces and white type, so nothing on the
+     page carries a colour cast. Only the accent and the ok/warn/bad signals
+     are allowed any hue, because they have to mean something. */
+  --surface:#1e1e1e;--panel:#171717;--bg:#121212;
+  --ink:#ffffff;--ink2:#e6e6e6;--muted:#a3a3a3;--line:#303030;
+  --chip:#262626;--hover:#242424;--field:#151515;
+  --accent:#9db9ff;--accent-soft:#242a38;--accent-bg:#1d2029;--accent-line:#3b4460;--accent-ink:#c7d5ff;
+  --ok:#6ee7a8;--ok-soft:#14301f;--warn:#fbbf24;--warn-soft:#3a2a0a;--bad:#fda4a4;
+  --page:linear-gradient(180deg,#121212,#171717);
+  --bench-air:#161616;--wood1:#3f3a33;--wood2:#332f29;--bench-gloss:rgba(255,255,255,.05);
+  --glass-line:#9a9a9a;--glass-fill:#272727;--metal:#6f6f6f;--metal2:#565656;
+  --sink1:#2a2a2a;--sink2:#1f1f1f;--sink-line:#6f6f6f;--sink-ink:#d4d4d4;--sign-bg:rgba(23,23,23,.94);
+  --bad-soft:#3a1c1c;--paper:#191919;--mark:#5d4f12;--mine:#2e2712;
+  --sb:#3d3d3d;--sb-hover:#525252;
+  --shadow:0 6px 24px rgba(0,0,0,.5);
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -222,8 +225,16 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 .bench-card svg{width:56px;height:56px}
 .bench-card b{display:block;font-size:13px}
 .bench-card small{color:var(--muted);font-size:11px}
-.bench-card .mini{display:flex;gap:6px;margin-top:6px}
-.bench-card .mini button{padding:4px 8px;font-size:11px;border-radius:8px}
+/* the two things a glass rod can do, offered wherever the rod is shown */
+.acts{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap;justify-content:center}
+.acts button{padding:4px 7px;font-size:10.5px;border-radius:7px;line-height:1.2;
+  border:1px solid var(--accent-line);background:var(--accent-bg);color:var(--accent-ink)}
+.acts button:hover{background:var(--accent-soft)}
+.chip .acts{margin-top:0;margin-left:2px}
+.bench-card .mini{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.bench-card .mini button{padding:5px 9px;font-size:11px;border-radius:8px;
+  border:1px solid var(--accent-line);background:var(--accent-bg);color:var(--accent-ink);font-weight:600}
+.bench-card .mini button:hover{background:var(--accent-soft)}
 .bench-main{--ap:1;z-index:1;position:absolute;left:0;right:0;top:120px;bottom:70px;display:flex;align-items:flex-end;justify-content:space-evenly;padding:0 20px 26px}
 /* The bench scales to the width it actually has, not the window's, so narrowing
    it with the splitter keeps the apparatus in proportion instead of colliding.
@@ -377,7 +388,7 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 /* ---------- misc ---------- */
 .ghost{position:fixed;left:0;top:0;z-index:1000;pointer-events:none;width:64px;will-change:transform;opacity:.95}
 .ghost svg{width:100%;height:auto;display:block}
-.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#101828;color:var(--surface);padding:11px 18px;border-radius:12px;font-size:13.5px;opacity:0;transition:.25s;z-index:1200;pointer-events:none;max-width:70vw;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#101828;color:var(--surface);padding:11px 18px;border-radius:12px;font-size:13.5px;opacity:0;transition:opacity .25s,transform .25s;z-index:1200;pointer-events:none;max-width:70vw;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.3)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .probe{--ap:1;position:absolute;left:0;top:0;width:calc(130px*var(--ap));pointer-events:none;opacity:0;transition:opacity .3s;z-index:6}
 .probe.show{opacity:1}
@@ -498,8 +509,9 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
   .bench-card b{font-size:12px}
   .bench-card small{display:none}
   .bench-card .mini{margin-top:5px;gap:4px}
-  .bench-card .mini button{padding:4px 6px;font-size:0}          /* icon only */
-  .bench-card .mini button .ic{width:14px;height:14px;font-size:12px}
+  .bench-card .mini{flex-direction:column;gap:4px}
+  .bench-card .mini button{padding:4px 7px;font-size:10px;justify-content:flex-start}
+  .bench-card .mini button .ic{width:13px;height:13px}
 }
 @media (pointer:coarse){
   button{min-height:40px}
@@ -603,7 +615,7 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
       <div class="bench-card" data-item="salt" tabindex="0" role="button" aria-label="Given salt — add a pinch to the active vessel" title="Drag a pinch of salt to the test tube or beaker">
         <svg viewBox="0 0 64 64" id="dishSvg" aria-hidden="true"></svg>
         <div><b>Given salt</b><small>drag a pinch → vessel</small>
-          <div class="mini"><button id="btnObserve"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-eye"/></svg>Observe</button><button id="btnSmell"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-wave"/></svg>Smell</button></div></div>
+          <div class="mini"><button id="btnObserve" title="Look at the salt and record its appearance"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-eye"/></svg>Click to observe</button><button id="btnSmell" title="Rub a little between your fingers and smell it"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-wave"/></svg>Click to smell</button></div></div>
       </div>
       <div class="bench-card" data-item="saltSoln" tabindex="0" role="button" aria-label="Salt solution — add to the active vessel" title="Aqueous solution of the given salt">
         <svg viewBox="0 0 64 64" id="flaskSvg" aria-hidden="true"></svg>
@@ -1501,8 +1513,14 @@ function renderContents(){
   // into the sink. Both vessels say so in their tooltip and in clickItem's toast.
   bar.innerHTML=`<div class="chips">${h}</div><div class="tools">`
     +`<button class="switch">${ov.Name}: ${n?n+' added':'empty'}</button>`
+    +`<button id="btnHeat" title="Hold ${ov.name} in the Bunsen flame">`
+    +`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-flame"/></svg>Heat</button>`
+    +`<button id="btnWash" title="Rinse ${ov.name} out at the sink">`
+    +`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-drop"/></svg>Wash</button>`
     +`<button id="btnReset" title="Clear the bench, the notebook and every saved setting">`
     +`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-refresh"/></svg>Reset all</button></div>`;
+  $('#btnHeat').onclick=()=>heat(active);
+  $('#btnWash').onclick=()=>wash(active);
   $('#btnReset').onclick=resetAll;
   bar.querySelector('.switch').onclick=()=>refresh(oid);
 }
@@ -1571,7 +1589,7 @@ function vesselIcon(vid){
 function renderShelf(cat){
   $('#items').innerHTML=ITEMS.filter(i=>i.cat===cat).map(i=>{
     const need=selectedTest&&selectedTest.needs.includes(i.id);
-    return `<div class="item${need?' hl':''}" data-item="${i.id}" role="listitem" tabindex="0" aria-label="${esc(i.label)}${need?' — needed for the selected test':''}" title="${esc(i.label)} — drag to a vessel, or press Enter to add it to the active one">${icon(i)}<span>${esc(i.label)}</span></div>`;
+    return `<div class="item${need?' hl':''}" data-item="${i.id}" role="listitem" tabindex="0" aria-label="${esc(i.label)}${need?' — needed for the selected test':''}" title="${esc(i.label)} — drag to a vessel, or press Enter to add it to the active one">${icon(i)}<span>${esc(i.label)}</span>${ROD_ACTS.has(i.id)?actRow(i.id):''}</div>`;
   }).join('');
 }
 function renderDish(){
@@ -1684,7 +1702,7 @@ function selectTest(t){
   const seen=new Set();
   $('#trayChips').innerHTML=t.needs.filter(id=>!seen.has(id)&&seen.add(id)).map(id=>{
     if(BENCH[id]&&!['salt','saltSoln','water'].includes(id)) return `<span class="chip static">${esc(BENCH[id].label)}</span>`;
-    const it=ITEM[id]; return `<span class="chip" data-item="${id}" tabindex="0" role="button" title="${esc(label(id))} — drag to a vessel, or press Enter">${it?icon(it):''}${esc(label(id))}</span>`;
+    const it=ITEM[id]; return `<span class="chip" data-item="${id}" tabindex="0" role="button" title="${esc(label(id))} — drag to a vessel, or press Enter">${it?icon(it):''}${esc(label(id))}${ROD_ACTS.has(id)?actRow(id):''}</span>`;
   }).join('');
   renderShelf(currentCat);
 }
@@ -2035,11 +2053,21 @@ function startGhost(){
   document.body.appendChild(g); drag.ghost=g; drag.ox=g.offsetWidth/2; drag.oy=g.offsetHeight*.3;
   g.style.transform=`translate3d(${drag.x-drag.ox}px,${drag.y-drag.oy}px,0)`;
 }
+const ROD_ACTS=new Set(['rodDry','rodHCl','rodNH4OH']);
+const actRow=id=>'<span class="acts">'
+  +'<button type="button" data-act="dip" data-for="'+id+'" title="Dip the rod into the active vessel to pick up what is in it">Dip</button>'
+  +'<button type="button" data-act="mouth" data-for="'+id+'" title="Hold the rod at the mouth of the active vessel to test the gas coming off">At mouth</button>'
+  +'</span>';
+// Carry out one of them on whichever vessel is active.
+function rodAct(id,act){
+  const v=VESSELS[active]; if(!v) return;
+  if(act==='mouth') return probe(active,id);
+  return dipTool(active,id);
+}
 function clickItem(id){
   if(VESSELS[id]) return toast('Drag the '+VESSELS[id].name+' on to the burner to heat it, on to the other vessel to pour, or to the sink to wash it.');
   if(onBench(id)) return toast(label(id)+' is on the bench — drag it to the flame, or on to a vessel.');
-  if(id==='rodHCl') return toast('Drag this rod to the mouth of a vessel to test the gas evolved.');
-  if(id==='rodDry') return toast('Drag the rod on to a vessel to coat it, then into the flame for the flame test.');
+  if(ROD_ACTS.has(id)) return rodAct(id,'dip');
   handleDrop(id,active);
 }
 
@@ -2085,6 +2113,13 @@ document.addEventListener('keydown',e=>{
   if(e.target.closest('button,select,input,textarea,a,summary,.test')) return;
   const el=e.target.closest('[data-item]'); if(!el) return;
   e.preventDefault(); clickItem(el.dataset.item);
+});
+// Dip / At mouth, wherever a rod is shown. Delegated because the shelf and the
+// needed row are both re-rendered whenever the test or the tab changes.
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  e.preventDefault(); e.stopPropagation();
+  rodAct(b.dataset.for,b.dataset.act);
 });
 $('#btnObserve').onclick=observeSalt; $('#btnSmell').onclick=smellSalt;
 $('#btnRecord').onclick=()=>{ if(!lastEntry) return; notebook.push({sec:lastEntry.sec||(selectedTest?GUIDE.find(s=>s.tests.includes(selectedTest)).sec:''),test:lastEntry.test,exp:lastEntry.exp,obs:lastEntry.obs,inf:lastEntry.inf,smell:lastEntry.smell||null}); renderNotebook(); save(); toast('Recorded in the notebook.'); $('#btnRecord').disabled=true; };
