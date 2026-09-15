@@ -197,20 +197,20 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 .panel{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;min-height:0}
 .panel-h{padding:12px 14px;border-bottom:1px solid var(--line);font-weight:700;font-size:13px;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
 /* ---------- shelf ---------- */
-.tabs{display:flex;gap:4px;padding:8px 10px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.tabs{display:flex;gap:4px;padding:8px 10px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none;flex:0 0 auto}
 .tabs::-webkit-scrollbar{display:none}
 .tabs button{display:block;text-align:center;flex:1 1 0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:7px 4px;font-size:12px;border-radius:8px;border-color:transparent;background:var(--chip)}
 .tabs button.active{background:var(--accent);color:var(--surface)}
-.tray{padding:10px 12px;border-bottom:1px dashed var(--accent-line);background:var(--accent-bg)}
+.tray{padding:10px 12px;border-bottom:1px dashed var(--accent-line);background:var(--accent-bg);flex:0 0 auto}
 .tray.hidden{display:none}
 .tray h4{margin:0 0 8px;font-size:11px;color:var(--accent-ink);text-transform:uppercase;letter-spacing:.4px}
 .tray .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--accent-line);border-radius:999px;padding:4px 10px 4px 6px;font-size:12.5px;cursor:grab;user-select:none;touch-action:pan-y}
 .chip svg{width:16px;height:20px}
 .chip.static{cursor:default;background:var(--accent-soft);border-style:dashed}
-.items{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.items{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;flex:1 1 auto;min-height:0}
 .item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px 6px;border-radius:12px;background:var(--surface);border:1px solid var(--line);cursor:grab;user-select:none;touch-action:pan-y;transition:.15s}
-.item svg{width:44px;height:58px}
+.item > svg{width:44px;height:58px}          /* the tile's own picture, not icons nested in it */
 .item span{font-size:11.5px;text-align:center;line-height:1.25}
 .item:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--accent)}
 .item.hl{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.22);background:var(--accent-bg)}
@@ -222,7 +222,7 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 .bench-top{display:flex;gap:14px;padding:14px 18px 0;position:relative;z-index:2}
 .bench-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:grab;user-select:none;touch-action:none;transition:.15s}
 .bench-card:hover{box-shadow:var(--shadow);border-color:var(--accent-line)}
-.bench-card svg{width:56px;height:56px}
+.bench-card > svg{width:56px;height:56px}    /* likewise: direct child only */
 .bench-card b{display:block;font-size:13px}
 .bench-card small{color:var(--muted);font-size:11px}
 /* the two things a glass rod can do, offered wherever the rod is shown */
@@ -505,7 +505,7 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
   .bench-top{gap:8px;padding:10px 12px 0;overflow-x:auto;scrollbar-width:none}
   .bench-top::-webkit-scrollbar{display:none}
   .bench-card{flex:0 0 auto;padding:8px 9px;gap:7px}
-  .bench-card svg{width:36px;height:36px}
+  .bench-card > svg{width:36px;height:36px}
   .bench-card b{font-size:12px}
   .bench-card small{display:none}
   .bench-card .mini{margin-top:5px;gap:4px}
