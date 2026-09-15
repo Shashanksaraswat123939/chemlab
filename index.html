@@ -306,25 +306,6 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 .benchtool .bt-x{flex:0 0 auto;border:0;background:var(--chip);color:var(--muted);border-radius:50%;
   width:18px;height:18px;padding:0;box-shadow:none}
 .benchtool .bt-x:hover{background:var(--bad);color:#fff;box-shadow:none;border-color:transparent}
-/* ---------- the picture on the lab wall ----------
-   It hangs behind the apparatus and takes no pointer events, so it can never
-   get in the way of a drag; only its close button is clickable. */
-.portrait{position:absolute;right:26px;top:210px;width:142px;margin:0;pointer-events:none;
-  padding:9px;background:linear-gradient(160deg,#8a6a43,#6b5133);border-radius:5px;
-  box-shadow:0 14px 28px rgba(16,24,40,.32),inset 0 0 0 1px rgba(255,255,255,.18);
-  transition:opacity .3s,transform .3s}
-.portrait:before{content:"";position:absolute;left:50%;top:-16px;width:2px;height:16px;background:rgba(80,60,40,.75)}
-.portrait img{display:block;width:100%;height:auto;border-radius:2px;border:1px solid rgba(0,0,0,.35)}
-.portrait[hidden]{display:none}
-.portrait .pt-x{position:absolute;top:-10px;right:-10px;z-index:6;pointer-events:auto;width:24px;height:24px;padding:0;
-  border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:50%;
-  box-shadow:0 2px 10px rgba(0,0,0,.35);display:grid;place-items:center;transition:.15s}
-.portrait .pt-x:hover{background:var(--bad);color:#fff;border-color:var(--bad);transform:scale(1.1)}
-.portrait .pt-x .ic{width:12px;height:12px;stroke-width:2.4}
-.pt-show{position:absolute;right:26px;top:210px;z-index:6;font-size:11.5px;padding:5px 11px;border-radius:999px;
-  background:var(--panel);border:1px dashed var(--line);color:var(--muted);opacity:.75}
-.pt-show:hover{opacity:1;border-style:solid}
-@container bench (max-width:470px){.portrait,.pt-show{display:none}}
 /* ---------- side ---------- */
 .obs{padding:14px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--surface),var(--accent-bg))}
 .obs .head{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
@@ -508,10 +489,6 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 @container side (max-width:330px){
   .side-tabs button{font-size:12px;padding:11px 3px}
 }
-@container bench (max-width:700px){          /* the picture shrinks before the cards do */
-  .portrait{width:112px;right:16px;top:180px}
-  .pt-show{right:16px;top:180px}
-}
 @container bench (max-width:760px){
   /* the three reagent cards get compact, and the row scrolls rather than clipping */
   .bench-top{gap:8px;padding:10px 12px 0;overflow-x:auto;scrollbar-width:none}
@@ -638,11 +615,6 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
       </div>
     </div>
 
-    <figure class="portrait" id="portrait">
-      <img src="portrait.jpg" alt="Portrait hanging on the lab wall" width="640" height="640" decoding="async">
-      <button class="pt-x" id="ptHide" type="button" title="Hide the picture" aria-label="Hide the picture on the wall"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-x"/></svg></button>
-    </figure>
-    <button class="pt-show" id="ptShow" type="button" hidden>Show picture</button>
     <div class="bench-main" id="benchMain">
       <div class="stand">
         <div class="clamp"></div>
@@ -1769,13 +1741,12 @@ function drawSalt(avoid){
 // Only the settings persist. The salt is never restored — reloading gives a fresh
 // unknown, and a notebook from the previous salt would not belong to it.
 function save(){ try{ const r=document.getElementById('roughText');
-  localStorage.setItem('chemlab',JSON.stringify({mode,theme,cols,folded,portrait:showPortrait,pool:[...pool],last:SALTS.indexOf(salt),rough:r?r.value:''})); }catch(e){} }
+  localStorage.setItem('chemlab',JSON.stringify({mode,theme,cols,folded,pool:[...pool],last:SALTS.indexOf(salt),rough:r?r.value:''})); }catch(e){} }
 function load(){ try{ const d=JSON.parse(localStorage.getItem('chemlab')); if(d){
   if(d.mode==='learn'||d.mode==='test') mode=d.mode;
   if(d.theme==='light'||d.theme==='dark') theme=d.theme;
   if(d.cols&&typeof d.cols.L==='number'&&typeof d.cols.R==='number') cols={L:d.cols.L,R:d.cols.R};
   if(d.folded) folded={L:!!d.folded.L,R:!!d.folded.R};
-  if(typeof d.portrait==='boolean') showPortrait=d.portrait;
   if(typeof d.rough==='string'){ const r=document.getElementById('roughText'); if(r) r.value=d.rough; }
   if(Array.isArray(d.pool)&&d.pool.length) pool=new Set(d.pool.filter(i=>SALTS[i]));
   return SALTS[d.last]||null; } }catch(e){} return null; }
@@ -1979,11 +1950,11 @@ function resetAll(){
   notebook=[]; tools={}; done=new Set(); reported=''; selectedTest=null; lastEntry=null;
   for(const v of Object.values(VESSELS)){ v.st=freshState(); v.pptKey=''; v.gasKey=''; v.sfxKey=undefined; v.busy=false; }
   cols={L:COL_DEF.L,R:COL_DEF.R}; folded={L:false,R:false};
-  showPortrait=true; theme='light'; mode='learn'; pool=new Set(SA1_IDX);
+  theme='light'; mode='learn'; pool=new Set(SA1_IDX);
   const r=$('#roughText'); if(r) r.value='';
   active='tube';
   salt=drawSalt(salt);
-  applyTheme(); applyPortrait(); applyCols(); applySettings();
+  applyTheme(); applyCols(); applySettings();
   saltQuery=''; const sq=$('#saltSearch'); if(sq) sq.value='';
   renderSaltList(); roughCount(); renderDish(); renderShelf(currentCat); renderBenchTools();
   selectTest(null); renderCompareSheet(); renderNotebook(); renderProgress();
@@ -2307,16 +2278,6 @@ function applyTheme(){
   $('#btnTheme').setAttribute('aria-label',dark?'Switch to the light bench':'Switch to the dark bench');
 }
 $('#btnTheme').onclick=()=>{ theme=theme==='dark'?'light':'dark'; applyTheme(); save(); };
-// The picture hanging on the lab wall. Hide it with its cross; the pill brings it
-// back, so hiding it is never a one-way door.
-let showPortrait=true;
-function applyPortrait(){
-  const f=$('#portrait'),b=$('#ptShow');
-  if(!f||!b) return;
-  f.hidden=!showPortrait; b.hidden=showPortrait;
-}
-$('#ptHide').onclick=()=>{ showPortrait=false; applyPortrait(); save(); $('#ptShow').focus(); };
-$('#ptShow').onclick=()=>{ showPortrait=true; applyPortrait(); save(); $('#ptHide').focus(); };
 function applySettings(){
   showInf=(mode==='learn');
   document.body.classList.toggle('hide-inf',!showInf);
@@ -2350,7 +2311,7 @@ $('#selCation').innerHTML=Object.entries(CATIONS).map(([k,v])=>`<option value="$
 const prevSalt=load();          // settings only; the unknown is drawn fresh every load
 salt=drawSalt(prevSalt);
 save();                         // record it now, so the next load avoids repeating it
-applyTheme(); applyPortrait(); applyCols(); applySettings(); renderSaltList(); roughCount();
+applyTheme(); applyCols(); applySettings(); renderSaltList(); roughCount();
 renderShelf('acid'); renderGuide(); renderCompareSheet(); renderDish(); renderNotebook(); renderBenchTools(); renderProgress(); refresh('beaker',true); refresh('tube');
 showObs({test:'Welcome',sec:'',exp:'An unknown simple salt is given. Identify its anion and cation.',obs:'Choose a test in the procedure guide, drag the reagents it needs on to the test tube or beaker, read the result here, then record it.',inf:'—'});
 askMode();
