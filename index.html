@@ -461,7 +461,7 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
 /* bubbles wobble sideways as they rise, and swell slightly near the surface */
 @keyframes rise{0%{transform:translate(0,0) scale(.75);opacity:.35}12%{opacity:.9}50%{transform:translate(4px,-150px) scale(1)}100%{transform:translate(-3px,-300px) scale(1.25);opacity:0}}
 @keyframes riseS{0%{transform:translate(0,0) scale(.75);opacity:.35}18%{opacity:.9}50%{transform:translate(3px,-55px) scale(1)}100%{transform:translate(-2px,-110px) scale(1.2);opacity:0}}
-@keyframes puff{0%{transform:translate(0,10px) scale(.55);opacity:0}25%{opacity:.95}60%{transform:translate(4px,-22px) scale(1.1)}100%{transform:translate(-4px,-56px) scale(1.7);opacity:0}}
+@keyframes puff{0%{transform:translate(0,8px) scale(.5);opacity:0}22%{opacity:.95}60%{transform:translate(4px,-20px) scale(1.1)}100%{transform:translate(-4px,-46px) scale(1.6);opacity:0}}
 @keyframes flash{0%{background:var(--mine)}100%{background:transparent}}
 /* a drop falls, stretches as it accelerates, then flattens into the liquid */
 @keyframes drop{0%{transform:translateY(-44px) scaleY(.7);opacity:0}18%{opacity:1}70%{transform:translateY(34px) scaleY(1.35)}100%{transform:translateY(58px) scaleY(.4);opacity:0}}
@@ -637,7 +637,7 @@ main{display:grid;grid-template-columns:var(--colL) 14px 1fr 14px var(--colR);he
               <linearGradient id="glass" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".25" stop-color="#fff" stop-opacity=".02"/><stop offset=".8" stop-color="#fff" stop-opacity=".02"/><stop offset="1" stop-color="#fff" stop-opacity=".4"/></linearGradient>
               <radialGradient id="gg-brown"><stop offset="0" stop-color="#7c2d12" stop-opacity=".85"/><stop offset="1" stop-color="#7c2d12" stop-opacity="0"/></radialGradient>
               <radialGradient id="gg-red"><stop offset="0" stop-color="#b91c1c" stop-opacity=".85"/><stop offset="1" stop-color="#b91c1c" stop-opacity="0"/></radialGradient>
-              <radialGradient id="gg-clear"><stop offset="0" stop-color="#cbd5e1" stop-opacity=".7"/><stop offset="1" stop-color="#cbd5e1" stop-opacity="0"/></radialGradient>
+              <radialGradient id="gg-clear"><stop offset="0" stop-color="#cbd5e1" stop-opacity=".92"/><stop offset="1" stop-color="#cbd5e1" stop-opacity="0"/></radialGradient>
               <radialGradient id="gg-white"><stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset=".6" stop-color="#fff" stop-opacity=".8"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
             </defs>
             <g class="gas"></g>
@@ -1428,7 +1428,7 @@ function renderGas(v,kind){
   const gEl=$(v.svg).querySelector('.gas'); gEl.innerHTML='';
   if(!kind) return;
   const cx=v.geo.x+v.geo.w/2;
-  for(let i=0;i<3;i++) gEl.innerHTML+=`<ellipse cx="${cx-8+Math.random()*16}" cy="${v.geo.gasY-i*4}" rx="${16+i*4}" ry="${10+i*2}" fill="url(#gg-${kind})" style="animation:puff ${1.6+i*.3}s ease-out ${i*.4}s infinite"/>`;
+  for(let i=0;i<4;i++) gEl.innerHTML+=`<ellipse cx="${cx-8+Math.random()*16}" cy="${v.geo.gasY+30-i*5}" rx="${14+i*4}" ry="${9+i*2}" fill="url(#gg-${kind})" style="animation:puff ${1.7+i*.3}s ease-out ${i*.35}s infinite"/>`;
 }
 // Drops fall in, then a ripple spreads across the surface where they land.
 function pourAnim(v,col){
